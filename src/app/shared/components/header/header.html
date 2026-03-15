@@ -1,0 +1,37 @@
+<!-- navbar.component.html -->
+<header class="bg-primary px-3 d-flex align-items-center justify-content-between">
+
+  <!-- Lado izquierdo: toggle + logo -->
+  <div class="d-flex align-items-center gap-2">
+
+    <button class="btn btn-outline-light btn-sm d-lg-none"
+            (click)="ui.toggleSidebar()">
+      <i class="bi bi-list" style="font-size: 16px;"></i>
+    </button>
+
+    <span class="fw-bold d-flex align-items-center gap-2">
+      <i class="bi bi-heart-pulse-fill"></i>
+      Piedra Azul
+    </span>
+
+  </div>
+
+  <!-- Lado derecho: email, rol, logout -->
+  <div class="d-flex align-items-center gap-3">
+
+    <span class="badge rounded-pill bg-white text-primary d-none d-md-inline">
+      {{ auth.currentUser()?.email }}
+    </span>
+
+    <span class="badge rounded-pill bg-white bg-opacity-25 text-white">
+      {{ auth.userRole() }}
+    </span>
+
+    <button class="btn btn-outline-light btn-sm"
+            (click)="auth.logout()">
+      <i class="bi bi-box-arrow-right" style="font-size: 16px;"></i>
+    </button>
+
+  </div>
+
+</header>

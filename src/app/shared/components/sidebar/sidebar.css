@@ -1,0 +1,11 @@
+.sidebar-container {
+    width: var(--var-sidebar-width);
+    background-color: var(--var-color-primary-dark);
+    border-right: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* Ajuste para que el menú interno posea scroll si hay muchos items */
+.sidebar-nav-list {
+  flex-grow: 1;
+  overflow-y: auto;
+}

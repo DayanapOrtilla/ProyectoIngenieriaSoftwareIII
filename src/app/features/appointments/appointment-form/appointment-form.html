@@ -1,0 +1,540 @@
+<!-- Confirmación exitosa -->
+@if (confirmed) {
+  <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light p-3">
+    <div class="card border-0 shadow-sm text-center p-5" style="max-width: 480px; width: 100%;">
+      <i class="bi bi-check-circle-fill text-success mb-3" style="font-size: 56px;"></i>
+      <h4 class="fw-medium mb-2">¡Cita agendada!</h4>
+      <p class="text-muted mb-1">
+        Cita con
+        <strong>
+          {{ booking.professional?.firstName }} {{ booking.professional?.lastName }}
+        </strong>
+        registrada para el
+      </p>
+      <p class="fw-medium mb-4">
+        {{ formatDate(booking.date!) }} a las {{ booking.startTime }}
+      </p>
+      <div class="d-grid gap-2">
+        @if (isSchedulerMode()) {
+          <button class="btn btn-primary btn-lg" (click)="goBack()">
+            <i class="bi bi-calendar-check me-2"></i>Ver agenda
+          </button>
+        } @else {
+          <button class="btn btn-primary btn-lg" (click)="goBack()">
+            <i class="bi bi-house me-2"></i>Volver al inicio
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Wizard -->
+@if (!confirmed) {
+  <div class="container py-4" style="max-width: 680px;">
+
+    <!-- Encabezado -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <button class="btn btn-outline-secondary btn-sm" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <div>
+        <h4 class="mb-0 fw-medium">
+          {{ isSchedulerMode() ? 'Nueva cita' : 'Agendar mi cita' }}
+        </h4>
+        <p class="text-muted mb-0">Paso {{ currentStep }} de {{ totalSteps }}</p>
+      </div>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div class="progress mb-4" style="height: 8px; border-radius: 4px;">
+      <div class="progress-bar bg-primary"
+           [style.width.%]="(currentStep / totalSteps) * 100">
+      </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="d-flex justify-content-between mb-5 px-2">
+      @for (step of [1, 2, 3]; track step) {
+        <div class="d-flex flex-column align-items-center gap-1">
+          <div class="rounded-circle d-flex align-items-center justify-content-center fw-medium"
+               style="width: 40px; height: 40px; font-size: 15px;"
+               [class.bg-primary]="currentStep >= step"
+               [class.text-white]="currentStep >= step"
+               [class.bg-light]="currentStep < step"
+               [class.text-muted]="currentStep < step"
+               [class.border]="currentStep < step">
+            @if (currentStep > step) {
+              <i class="bi bi-check-lg"></i>
+            } @else {
+              {{ step }}
+            }
+          </div>
+          <small class="text-muted text-center" style="font-size: 11px;">
+            @switch (step) {
+              @case (1) {
+                {{ isSchedulerMode() ? 'Paciente y profesional' : 'Profesional' }}
+              }
+              @case (2) { Fecha y hora }
+              @case (3) { Confirmar }
+            }
+          </small>
+        </div>
+      }
+    </div>
+
+    <!-- ══ PASO 1 ══ -->
+    @if (currentStep === 1) {
+      <div>
+        <!-- Búsqueda de paciente — solo modo agendador -->
+        @if (isSchedulerMode()) {
+          <div class="mb-4">
+            <h5 class="fw-medium mb-1">¿A quién se va a atender?</h5>
+            <p class="text-muted mb-3">Busque el paciente o regístrelo si es nuevo.</p>
+
+            <!-- Campo de búsqueda -->
+            <div class="position-relative mb-2">
+              <div class="input-group input-group-lg">
+                <span class="input-group-text bg-white">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text"
+                       class="form-control border-start-0 fs-6"
+                       placeholder="Nombre o número de documento..."
+                       [value]="searchTerm"
+                       (input)="onSearchChange($any($event.target).value)">
+                @if (selectedPatient) {
+                  <button class="btn btn-outline-secondary"
+                          (click)="clearPatient()">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                }
+              </div>
+
+              <!-- Resultados de búsqueda -->
+              @if (searchLoading) {
+                <div class="border rounded-3 p-3 mt-1 bg-white shadow-sm text-center">
+                  <div class="spinner-border spinner-border-sm text-primary"></div>
+                </div>
+              }
+
+              @if (!searchLoading && searchResults.length > 0 && !selectedPatient) {
+                <div class="border rounded-3 mt-1 bg-white shadow-sm"
+                     style="position: absolute; width: 100%; z-index: 100;">
+                  @for (patient of searchResults; track patient.id) {
+                    <button class="btn w-100 text-start px-3 py-2 border-0 border-bottom d-flex align-items-center gap-2"
+                            (click)="selectPatient(patient)">
+                      <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                           style="width: 36px; height: 36px; font-size: 13px;">
+                        {{ patient.firstName[0] }}{{ patient.lastName[0] }}
+                      </div>
+                      <div>
+                        <div class="fw-medium" style="font-size: 14px;">
+                          {{ patient.firstName }} {{ patient.lastName }}
+                        </div>
+                        <small class="text-muted">CC {{ patient.documentId }} · {{ patient.phone }}</small>
+                      </div>
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (!searchLoading && searchTerm.length >= 2 && searchResults.length === 0 && !selectedPatient) {
+                <div class="border rounded-3 p-3 mt-1 bg-white shadow-sm text-center">
+                  <p class="text-muted small mb-2">No se encontró ningún paciente.</p>
+                  <button class="btn btn-outline-primary btn-sm"
+                          (click)="toggleNewPatientForm()">
+                    <i class="bi bi-person-plus me-1"></i>Registrar nuevo paciente
+                  </button>
+                </div>
+              }
+            </div>
+
+            <!-- Paciente seleccionado -->
+            @if (selectedPatient) {
+              <div class="alert alert-success d-flex align-items-center gap-3 py-2 mb-3">
+                <i class="bi bi-person-check-fill" style="font-size: 22px;"></i>
+                <div>
+                  <div class="fw-medium">
+                    {{ selectedPatient.firstName }} {{ selectedPatient.lastName }}
+                  </div>
+                  <small>CC {{ selectedPatient.documentId }} · {{ selectedPatient.phone }}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-success ms-auto"
+                        (click)="clearPatient()">
+                  Cambiar
+                </button>
+              </div>
+            }
+
+            <!-- Formulario nuevo paciente -->
+            @if (showNewPatientForm) {
+              <div class="card border-primary border-opacity-25 mb-3">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-2">
+                  <span class="fw-medium fs-6">
+                    <i class="bi bi-person-plus me-1 text-primary"></i>
+                    Nuevo paciente
+                  </span>
+                  <button class="btn btn-sm btn-outline-secondary"
+                          (click)="toggleNewPatientForm()">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+                <div class="card-body">
+                  <form [formGroup]="patientForm">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label class="form-label">Documento *</label>
+                        <input formControlName="documentId"
+                               class="form-control"
+                               [class.is-invalid]="isInvalid('documentId')"
+                               placeholder="Número de documento">
+                        <div class="invalid-feedback">El documento es obligatorio.</div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Nombres *</label>
+                        <input formControlName="firstName"
+                               class="form-control"
+                               [class.is-invalid]="isInvalid('firstName')">
+                        <div class="invalid-feedback">El nombre es obligatorio.</div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Apellidos *</label>
+                        <input formControlName="lastName"
+                               class="form-control"
+                               [class.is-invalid]="isInvalid('lastName')">
+                        <div class="invalid-feedback">El apellido es obligatorio.</div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Celular *</label>
+                        <input formControlName="phone"
+                               class="form-control"
+                               [class.is-invalid]="isInvalid('phone')"
+                               placeholder="3001234567"
+                               maxlength="10">
+                        <div class="invalid-feedback">Ingresa un celular válido de 10 dígitos.</div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Género *</label>
+                        <select formControlName="gender"
+                                class="form-select"
+                                [class.is-invalid]="isInvalid('gender')">
+                          <option value="">Seleccionar...</option>
+                          <option value="MASCULINO">Masculino</option>
+                          <option value="FEMENINO">Femenino</option>
+                          <option value="OTRO">Otro</option>
+                        </select>
+                        <div class="invalid-feedback">Selecciona un género.</div>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email"
+                               formControlName="email"
+                               class="form-control"
+                               [class.is-invalid]="isInvalid('email')"
+                               placeholder="opcional">
+                        <div class="invalid-feedback">Ingresa un correo válido.</div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
+                  <button class="btn btn-outline-secondary btn-md"
+                          (click)="toggleNewPatientForm()">
+                    Cancelar
+                  </button>
+                  <button class="btn btn-success btn-md"
+                          [disabled]="loading"
+                          (click)="saveNewPatient()">
+                    @if (loading) {
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    <i class="bi bi-person-check me-1"></i>Guardar paciente
+                  </button>
+                </div>
+              </div>
+            }
+
+            <hr class="my-4">
+          </div>
+        }
+
+        <!-- Especialidad -->
+        <h5 class="fw-medium mb-1">
+          {{ isSchedulerMode() ? '¿Qué tipo de atención necesita?' : '¿Qué tipo de atención necesita?' }}
+        </h5>
+        <p class="text-muted mb-4">Seleccione la especialidad y luego el profesional.</p>
+
+        <div class="row g-3 mb-4">
+          @for (specialty of specialties; track specialty) {
+            <div class="col-12 col-md-6">
+              <button class="btn w-100 text-start p-2 d-flex align-items-start gap-3"
+                      style="min-height: 60px; border-radius: 12px; border: 2px solid;"
+                      [class.border-primary]="isSelectedSpecialty(specialty)"
+                      [class.bg-primary]="isSelectedSpecialty(specialty)"
+                      [class.text-white]="isSelectedSpecialty(specialty)"
+                      [class.border-secondary]="!isSelectedSpecialty(specialty)"
+                      [class.bg-white]="!isSelectedSpecialty(specialty)"
+                      (click)="selectSpecialty(specialty)">
+                <i class="bi bi-clipboard2-pulse mt-1"
+                   style="font-size: 22px; flex-shrink: 0;"></i>
+                <div>
+                  <div class="fw-medium" style="font-size: 15px;">
+                    {{ specialty | specialtyLabel }}
+                  </div>
+                  <div style="font-size: 13px;"
+                       [class.text-white-50]="isSelectedSpecialty(specialty)"
+                       [class.text-muted]="!isSelectedSpecialty(specialty)">
+                    {{ specialtyDescriptions[specialty] }}
+                  </div>
+                </div>
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Profesionales -->
+        @if (booking.specialty && professionals.length > 0) {
+          <h5 class="fw-medium mb-1 mt-4">¿Con cuál profesional?</h5>
+          <p class="text-muted mb-3">Todos están disponibles para atenderle.</p>
+
+          <div class="row g-3 mb-4">
+            @for (prof of professionals; track prof.id) {
+              <div class="col-12">
+                <button class="btn w-100 text-start p-2 d-flex align-items-center gap-3"
+                        style="min-height: 60px; border-radius: 12px; border: 2px solid;"
+                        [class.border-primary]="isSelectedProfessional(prof)"
+                        [class.bg-primary]="isSelectedProfessional(prof)"
+                        [class.text-white]="isSelectedProfessional(prof)"
+                        [class.border-secondary]="!isSelectedProfessional(prof)"
+                        [class.bg-white]="!isSelectedProfessional(prof)"
+                        (click)="selectProfessional(prof)">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-medium flex-shrink-0"
+                       style="width: 48px; height: 48px; font-size: 16px;"
+                       [class.bg-white]="isSelectedProfessional(prof)"
+                       [class.text-primary]="isSelectedProfessional(prof)"
+                       [class.bg-primary]="!isSelectedProfessional(prof)"
+                       [class.bg-opacity-10]="!isSelectedProfessional(prof)">
+                    {{ prof.firstName[0] }}{{ prof.lastName[0] }}
+                  </div>
+                  <div>
+                    <div class="fw-medium" style="font-size: 15px;">
+                      {{ prof.type === 'MEDICO' ? 'Dr.' : 'Lic.' }}
+                      {{ prof.firstName }} {{ prof.lastName }}
+                    </div>
+                    <div style="font-size: 13px;"
+                         [class.text-white-50]="isSelectedProfessional(prof)"
+                         [class.text-muted]="!isSelectedProfessional(prof)">
+                      Consulta cada {{ prof.intervalMinutes }} minutos
+                    </div>
+                  </div>
+                  @if (isSelectedProfessional(prof)) {
+                    <i class="bi bi-check-circle-fill ms-auto" style="font-size: 22px;"></i>
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="d-grid mt-4">
+          <button class="btn btn-primary btn-lg"
+                  [disabled]="!canGoStep2"
+                  (click)="goToStep(2)">
+            Siguiente<i class="bi bi-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- ══ PASO 2: Fecha + Hora ══ -->
+    @if (currentStep === 2) {
+      <div>
+        <h5 class="fw-medium mb-1">¿Cuándo será la cita?</h5>
+        <p class="text-muted mb-4">
+          Con {{ booking.professional?.type === 'MEDICO' ? 'Dr.' : 'Lic.' }}
+          {{ booking.professional?.firstName }} {{ booking.professional?.lastName }}
+        </p>
+
+        <div class="card border-0 bg-light p-3 mb-4" style="border-radius: 12px;">
+          <label class="fw-medium mb-2" style="font-size: 16px;">
+            <i class="bi bi-calendar3 me-2 text-primary"></i>
+            Seleccione la fecha
+          </label>
+          <input type="date"
+                 class="form-control form-control-lg"
+                 style="font-size: 18px;"
+                 [min]="minDate"
+                 [max]="maxDate"
+                 [value]="booking.date ?? ''"
+                 (change)="onDateChange($any($event.target).value)">
+        </div>
+
+        @if (booking.date && loading) {
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+            <p class="text-muted mt-2">Buscando horarios disponibles...</p>
+          </div>
+        }
+
+        @if (booking.date && !loading && availableSlots.length === 0) {
+          <div class="alert alert-warning d-flex gap-3 align-items-center p-3"
+               style="border-radius: 12px;">
+            <i class="bi bi-calendar-x" style="font-size: 28px; flex-shrink: 0;"></i>
+            <div>
+              <div class="fw-medium">No hay horarios disponibles</div>
+              <div class="small">Por favor seleccione otra fecha.</div>
+            </div>
+          </div>
+        }
+
+        @if (booking.date && !loading && availableSlots.length > 0) {
+          <div class="mb-4">
+            <label class="fw-medium mb-3 d-block" style="font-size: 16px;">
+              <i class="bi bi-clock me-2 text-primary"></i>
+              Horarios disponibles
+            </label>
+            <div class="d-flex flex-wrap gap-2">
+              @for (slot of availableSlots; track slot) {
+                <button class="btn fw-medium"
+                        style="min-width: 80px;
+                               min-height: 52px;
+                               font-size: 17px;
+                               border-radius: 10px;
+                               border: 2px solid;"
+                        [class.btn-primary]="isSelectedSlot(slot)"
+                        [class.border-primary]="!isSelectedSlot(slot)"
+                        [class.text-primary]="!isSelectedSlot(slot)"
+                        [class.bg-white]="!isSelectedSlot(slot)"
+                        (click)="selectSlot(slot)">
+                  {{ slot }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="d-flex gap-3 mt-4">
+          <button class="btn btn-outline-secondary btn-lg flex-grow-1"
+                  (click)="goToStep(1)">
+            <i class="bi bi-arrow-left me-2"></i>Anterior
+          </button>
+          <button class="btn btn-primary btn-lg flex-grow-1"
+                  [disabled]="!canGoStep3"
+                  (click)="goToStep(3)">
+            Siguiente<i class="bi bi-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- ══ PASO 3: Resumen + Confirmación ══ -->
+    @if (currentStep === 3) {
+      <div>
+        <h5 class="fw-medium mb-1">Revise la cita</h5>
+        <p class="text-muted mb-4">Confirme que los datos sean correctos.</p>
+
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+          <div class="card-body p-4">
+
+            <!-- Paciente — solo modo agendador -->
+            @if (isSchedulerMode() && selectedPatient) {
+              <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-3">
+                <div class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width: 56px; height: 56px;">
+                  <i class="bi bi-person text-secondary" style="font-size: 26px;"></i>
+                </div>
+                <div>
+                  <div class="text-muted small">Paciente</div>
+                  <div class="fw-medium" style="font-size: 17px;">
+                    {{ selectedPatient.firstName }} {{ selectedPatient.lastName }}
+                  </div>
+                  <div class="text-muted small">
+                    CC {{ selectedPatient.documentId }} · {{ selectedPatient.phone }}
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Profesional -->
+            <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-3">
+              <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width: 56px; height: 56px;">
+                <i class="bi bi-person-badge text-primary" style="font-size: 26px;"></i>
+              </div>
+              <div>
+                <div class="text-muted small">Profesional</div>
+                <div class="fw-medium" style="font-size: 17px;">
+                  {{ booking.professional?.type === 'MEDICO' ? 'Dr.' : 'Lic.' }}
+                  {{ booking.professional?.firstName }} {{ booking.professional?.lastName }}
+                </div>
+                <div class="text-muted small">
+                  {{ booking.specialty! | specialtyLabel }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Fecha -->
+            <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-3">
+              <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width: 56px; height: 56px;">
+                <i class="bi bi-calendar-check text-success" style="font-size: 26px;"></i>
+              </div>
+              <div>
+                <div class="text-muted small">Fecha</div>
+                <div class="fw-medium" style="font-size: 17px;">
+                  {{ formatDate(booking.date!) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Hora -->
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width: 56px; height: 56px;">
+                <i class="bi bi-clock text-warning" style="font-size: 26px;"></i>
+              </div>
+              <div>
+                <div class="text-muted small">Hora</div>
+                <div class="fw-medium" style="font-size: 17px;">
+                  {{ booking.startTime }} — {{ booking.endTime }}
+                </div>
+                <div class="text-muted small">
+                  Duración: {{ booking.professional?.intervalMinutes }} minutos
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        @if (errorMsg) {
+          <div class="alert alert-danger d-flex gap-2 align-items-center mb-4"
+               style="border-radius: 12px;">
+            <i class="bi bi-exclamation-circle" style="font-size: 20px; flex-shrink: 0;"></i>
+            <span>{{ errorMsg }}</span>
+          </div>
+        }
+
+        <div class="d-flex gap-3">
+          <button class="btn btn-outline-secondary btn-lg flex-grow-1"
+                  [disabled]="loading"
+                  (click)="goToStep(2)">
+            <i class="bi bi-arrow-left me-2"></i>Anterior
+          </button>
+          <button class="btn btn-success btn-lg flex-grow-1"
+                  [disabled]="loading"
+                  (click)="confirm()">
+            @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Agendando...
+            } @else {
+              <i class="bi bi-check-lg me-2"></i>Confirmar cita
+            }
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
+}

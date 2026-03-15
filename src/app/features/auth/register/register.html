@@ -1,0 +1,144 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-4">
+  <div class="card border-0 shadow-sm" style="width: 100%; max-width: 480px;">
+
+    <!-- Encabezado -->
+    <div class="card-header bg-primary text-white text-center py-3">
+      <h5 class="mb-0 fw-medium">
+        <i class="bi bi-heart-pulse-fill me-2"></i>Piedra Azul
+      </h5>
+      <small class="opacity-75">Crea tu cuenta</small>
+    </div>
+
+    <div class="card-body p-4">
+
+      <!-- Error general -->
+      @if (errorMsg()) {
+        <div class="alert alert-danger d-flex align-items-center gap-2 py-2">
+          <i class="bi bi-exclamation-circle" style="font-size: 16px;"></i>
+          <span>{{ errorMsg() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="row g-3">
+
+          <!-- Documento -->
+          <div class="col-12">
+            <label class="form-label">Número de documento *</label>
+            <input formControlName="documentId"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('documentId')"
+                   placeholder="Cédula o tarjeta de identidad">
+            <div class="invalid-feedback">El documento es obligatorio.</div>
+          </div>
+
+          <!-- Nombre y apellido -->
+          <div class="col-md-6">
+            <label class="form-label">Nombres *</label>
+            <input formControlName="firstName"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('firstName')"
+                   placeholder="Nombres">
+            <div class="invalid-feedback">El nombre es obligatorio.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Apellidos *</label>
+            <input formControlName="lastName"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('lastName')"
+                   placeholder="Apellidos">
+            <div class="invalid-feedback">El apellido es obligatorio.</div>
+          </div>
+
+          <!-- Teléfono y género -->
+          <div class="col-md-6">
+            <label class="form-label">Celular *</label>
+            <input formControlName="phone"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('phone')"
+                   placeholder="3001234567"
+                   maxlength="10">
+            <div class="invalid-feedback">Ingresa un celular válido de 10 dígitos.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Género *</label>
+            <select formControlName="gender"
+                    class="form-select"
+                    [class.is-invalid]="isInvalid('gender')">
+              <option value="">Seleccionar...</option>
+              <option value="MASCULINO">Masculino</option>
+              <option value="FEMENINO">Femenino</option>
+              <option value="OTRO">Otro</option>
+            </select>
+            <div class="invalid-feedback">Selecciona un género.</div>
+          </div>
+
+          <!-- Correo -->
+          <div class="col-12">
+            <label class="form-label">Correo electrónico *</label>
+            <input type="email"
+                   formControlName="email"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('email')"
+                   placeholder="correo@ejemplo.com">
+            <div class="invalid-feedback">Ingresa un correo válido.</div>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="col-md-6">
+            <label class="form-label">Contraseña *</label>
+            <input type="password"
+                   formControlName="password"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('password')"
+                   placeholder="Mínimo 8 caracteres">
+            <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Confirmar contraseña *</label>
+            <input type="password"
+                   formControlName="confirm"
+                   class="form-control"
+                   [class.is-invalid]="isInvalid('confirm') || passwordMismatch">
+            @if (passwordMismatch) {
+              <div class="invalid-feedback d-block">
+                Las contraseñas no coinciden.
+              </div>
+            } @else {
+              <div class="invalid-feedback">Confirma tu contraseña.</div>
+            }
+          </div>
+
+        </div>
+
+        <!-- Botón enviar -->
+        <div class="d-grid mt-4">
+          <button type="submit"
+                  class="btn btn-primary"
+                  [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Registrando...
+            } @else {
+              <i class="bi bi-person-check me-1"></i>
+              Crear cuenta
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Pie -->
+    <div class="card-footer text-center bg-transparent py-3">
+      <small class="text-muted">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="ms-1">Inicia sesión aquí</a>
+      </small>
+    </div>
+
+  </div>
+</div>

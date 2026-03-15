@@ -1,0 +1,59 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center login-container bg-light">
+  <div class="card shadow-sm border-0" style="width: 400px;">
+
+    <div class="card-header bg-primary text-white text-center py-3">
+      <h5 class="mb-0 fw-bold">
+        <i class="bi bi-heart-pulse-fill me-2"></i>Piedra Azul
+      </h5>
+    </div>
+
+    <div class="card-body p-4">
+      <h6 class="text-muted mb-4 text-center">Inicia sesión para continuar</h6>
+
+      <!-- Mensaje de error -->
+      @if (errorMsg()) {
+        <div class="alert alert-danger d-flex align-items-center gap-2 py-2">
+          <i class="bi bi-exclamation-circle"></i>
+          <span>{{ errorMsg() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="mb-3">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" formControlName="email"
+                 class="form-control"
+                 [class.is-invalid]="isInvalid('email')"
+                 placeholder="usuario@piedra-azul.com">
+          <div class="invalid-feedback">Ingresa un correo válido.</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Contraseña</label>
+          <input type="password" formControlName="password"
+                 class="form-control"
+                 [class.is-invalid]="isInvalid('password')">
+          <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100"
+                [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          Ingresar
+        </button>
+
+      </form>
+    </div>
+
+    <div class="card-footer text-center bg-transparent py-3">
+      <small class="text-muted">
+        ¿Eres paciente nuevo?
+        <a routerLink="/register" class="ms-1">Regístrate aquí</a>
+      </small>
+    </div>
+
+  </div>
+</div>

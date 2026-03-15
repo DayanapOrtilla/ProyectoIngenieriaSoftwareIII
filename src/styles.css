@@ -1,1 +1,6 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+    --var-header-height: 60px;
+    --var-footer-height: 60px;
+    --var-sidebar-width: 220px;
+    --var-color-primary-dark: #021e6b;
+}

@@ -1,0 +1,4 @@
+header {
+    height: var(--var-header-height);
+    color: white;
+}

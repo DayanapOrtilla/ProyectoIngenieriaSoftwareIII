@@ -1,0 +1,36 @@
+<nav class="border-end d-flex flex-column sidebar-container" [class]="sidebarClasses" [style.z-index]="ui.sidebarOpen() ? 1050 : 'auto'">
+
+  <!-- Botón cerrar — solo dispositivo móvil -->
+  <div class="d-lg-none d-flex justify-content-end p-2 border-bottom">
+    <button class="btn btn-sm btn-outline-light"
+            (click)="ui.closeSidebar()">
+      <i class="bi bi-x-lg" style="font-size: 14px;"></i>
+    </button>
+  </div>
+
+  <ul class="nav flex-column pt-2 sidebar-nav-list">
+    @for (item of navItems(); track item.path) {
+      <li class="nav-item">
+        <a class="nav-link px-3 py-2 d-flex align-items-center gap-2 text-white rounded mx-2"
+           [routerLink]="item.path"
+           routerLinkActive="active fw-semibold bg-primary"
+           (click)="ui.closeSidebar()">
+          <i [class]="'bi fs-4 ' + item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+
+  <div class="p-3 border-top mt-auto">
+    <small class="text-white">Piedra Azul v1.0</small>
+  </div>
+</nav>
+
+<!-- Overlay — solo móvil cuando está abierto -->
+@if (ui.sidebarOpen()) {
+  <div class="d-lg-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"
+       style="z-index: 1040;"
+       (click)="ui.closeSidebar()">
+  </div>
+}
