@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink }        from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector:    'app-register',
@@ -12,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@
 export class RegisterComponent {
   private router = inject(Router);
   private fb     = inject(FormBuilder);
+  private auth   = inject(AuthService);
 
   form = this.fb.group({
     documentId: ['', [Validators.required]],
@@ -27,7 +29,7 @@ export class RegisterComponent {
   loading  = signal(false);
   errorMsg = signal<string | null>(null);
 
-  // Validador personalizado: contraseña y confirmación deben coincidir
+  // Validador personalizado: Valor de contraseña y confirmación deben coincidir
   private passwordMatch(group: AbstractControl) {
     const pass    = group.get('password')?.value;
     const confirm = group.get('confirm')?.value;
@@ -41,14 +43,27 @@ export class RegisterComponent {
     }
 
     this.loading.set(true);
+    this.errorMsg.set(null);
 
+    try {
     // TODO: reemplazar con llamada real al backend
-    // await this.authService.register(this.form.value);
-    await new Promise(r => setTimeout(r, 800)); // simula latencia
+      // await this.patientsSvc.register(this.form.value);
 
-    this.loading.set(false);
-    // Tras registro exitoso → asistente de agendamiento (HU-2.2)
-    this.router.navigate(['/appointments/book']);
+      // Tras registro, inicia sesión automáticamente con el email y contraseña
+      // En producción el backend devolverá el token directamente en el registro
+      await this.auth.login({
+        email:    this.form.value.email!,
+        password: this.form.value.password!,
+      });
+
+      // Tras registro exitoso → asistente de agendamiento (HU-2.2)
+      this.router.navigate(['/appointments/book']);
+
+    } catch {
+      this.errorMsg.set('Ocurrió un error al crear la cuenta. Intenta de nuevo.');
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   isInvalid(field: string): boolean {
