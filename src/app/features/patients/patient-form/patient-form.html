@@ -1,1 +1,141 @@
-<p>patient-form works!</p>
+<div style="max-width: 600px;">
+
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a routerLink="/patients"
+       class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="mb-0 fw-medium">
+        {{ isEditMode() ? 'Editar paciente' : 'Nuevo paciente' }}
+      </h4>
+      <small class="text-muted">
+        {{ isEditMode() ? 'Actualiza los datos del paciente' : 'Registra un nuevo paciente' }}
+      </small>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+      @if (loading() && isEditMode()) {
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="text-muted mt-2">Cargando datos...</p>
+        </div>
+      } @else {
+
+        @if (errorMsg()) {
+          <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3">
+            <i class="bi bi-exclamation-circle" style="font-size: 16px;"></i>
+            <span>{{ errorMsg() }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label class="form-label">Número de documento *</label>
+              <input formControlName="documentId"
+                     class="form-control"
+                     [class.is-invalid]="isInvalid('documentId')"
+                     placeholder="Cédula o tarjeta de identidad">
+              <div class="invalid-feedback">El documento es obligatorio.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Nombres *</label>
+              <input formControlName="firstName"
+                     class="form-control"
+                     [class.is-invalid]="isInvalid('firstName')"
+                     placeholder="Nombres">
+              <div class="invalid-feedback">El nombre es obligatorio.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Apellidos *</label>
+              <input formControlName="lastName"
+                     class="form-control"
+                     [class.is-invalid]="isInvalid('lastName')"
+                     placeholder="Apellidos">
+              <div class="invalid-feedback">El apellido es obligatorio.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Celular *</label>
+              <input formControlName="phone"
+                     class="form-control"
+                     [class.is-invalid]="isInvalid('phone')"
+                     placeholder="3001234567"
+                     maxlength="10">
+              <div class="invalid-feedback">
+                Ingresa un celular válido de 10 dígitos.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Género *</label>
+              <select formControlName="gender"
+                      class="form-select"
+                      [class.is-invalid]="isInvalid('gender')">
+                <option value="">Seleccionar...</option>
+                <option value="MASCULINO">Masculino</option>
+                <option value="FEMENINO">Femenino</option>
+                <option value="OTRO">Otro</option>
+              </select>
+              <div class="invalid-feedback">Selecciona un género.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Correo electrónico</label>
+              <input type="email"
+                     formControlName="email"
+                     class="form-control"
+                     [class.is-invalid]="isInvalid('email')"
+                     placeholder="opcional">
+              <div class="invalid-feedback">Ingresa un correo válido.</div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input"
+                       type="checkbox"
+                       formControlName="isActive"
+                       id="isActive">
+                <label class="form-check-label" for="isActive">
+                  Paciente activo
+                </label>
+              </div>
+              <small class="text-muted">
+                Los pacientes inactivos no pueden agendar citas.
+              </small>
+            </div>
+
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <a routerLink="/patients"
+               class="btn btn-outline-secondary flex-grow-1">
+              Cancelar
+            </a>
+            <button type="submit"
+                    class="btn btn-primary flex-grow-1"
+                    [disabled]="loading()">
+              @if (loading()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Guardando...
+              } @else {
+                <i class="bi bi-check-lg me-2"></i>
+                {{ isEditMode() ? 'Guardar cambios' : 'Registrar paciente' }}
+              }
+            </button>
+          </div>
+
+        </form>
+      }
+
+    </div>
+  </div>
+
+</div>

@@ -3,8 +3,8 @@ import { Router, ActivatedRoute }  from '@angular/router';
 import { FormsModule }             from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Subscription }            from 'rxjs';
-import { AppointmentsService, BookingState, EMPTY_BOOKING } from '../appointments.service';
-import { PatientsService, CreatePatientDto } from '../../patients/patients.service';
+import { AppointmentsService, BookingState, EMPTY_BOOKING } from '../../../core/services/appointments.service';
+import { PatientsService, CreatePatientDto } from '../../../core/services/patients.service';
 import { AuthService }             from '../../../core/services/auth.service';
 import type { Professional }       from '../../../core/models/professional';
 import type { Specialty }          from '../../../core/models/professional';
@@ -219,13 +219,33 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
 
   // ── Confirmación ─────────────────────────────────────────
   protected confirm(): void {
-    this.loading  = true;
+    // Modo paciente: asigna el usuario actual como paciente
+    if (!this.isSchedulerMode()) {
+      const user = this.auth.currentUser();
+      this.booking.patient = {
+        id:        user!.id,
+        firstName: user!.email.split('@')[0], // temporal hasta tener perfil completo
+        lastName:  '',
+        phone:     '',
+      };
+    }
+    // Modo agendador: el paciente ya está en this.selectedPatient
+    else if (this.selectedPatient) {
+      this.booking.patient = {
+        id:        this.selectedPatient.id,
+        firstName: this.selectedPatient.firstName,
+        lastName:  this.selectedPatient.lastName,
+        phone:     this.selectedPatient.phone,
+      };
+    }
+
+    this.loading = true;
     this.errorMsg = null;
 
     const sub = this.svc.confirmAppointment(this.booking).subscribe({
       next:  () => { this.loading = false; this.confirmed = true; },
       error: () => {
-        this.loading  = false;
+        this.loading = false;
         this.errorMsg = 'Ocurrió un error al agendar la cita. Por favor intente de nuevo.';
       }
     });

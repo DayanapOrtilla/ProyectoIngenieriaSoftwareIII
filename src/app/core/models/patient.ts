@@ -8,5 +8,6 @@ export interface Patient {
   phone:      string;
   gender:     Gender;
   email?:     string;
+  isActive:   boolean;
   userId?:    string; // opcional: solo si creó cuenta
 }

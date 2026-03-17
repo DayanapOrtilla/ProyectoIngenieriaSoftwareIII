@@ -1,1 +1,150 @@
-<p>professional-list works!</p>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="mb-0 fw-medium">Profesionales</h4>
+    <small class="text-muted">Médicos y terapistas del centro</small>
+  </div>
+  <a routerLink="/professionals/new"
+     class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-person-plus"></i>
+    Nuevo profesional
+  </a>
+</div>
+
+<!-- Métricas -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="p-2 rounded-3 bg-body-secondary text-center">
+      <div class="text-muted small mb-1">Total</div>
+      <div class="fs-4 fw-medium">{{ professionals.length }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-2 rounded-3 bg-body-secondary text-center">
+      <div class="text-muted small mb-1">Activos</div>
+      <div class="fs-4 fw-medium text-success">{{ totalActive }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-2 rounded-3 bg-body-secondary text-center">
+      <div class="text-muted small mb-1">Inactivos</div>
+      <div class="fs-4 fw-medium text-danger">{{ totalInactive }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body py-3">
+    <div class="row g-3 align-items-end">
+
+      <div class="col-12 col-md-4">
+        <label class="form-label text-muted small mb-1">Tipo</label>
+        <select class="form-select"
+                [(ngModel)]="filterType">
+          <option value="">Todos</option>
+          <option value="MEDICO">Médicos</option>
+          <option value="TERAPISTA">Terapistas</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label text-muted small mb-1">Estado</label>
+        <select class="form-select"
+                [(ngModel)]="filterActive">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Lista -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="text-muted mt-2">Cargando profesionales...</p>
+      </div>
+    } @else if (filtered.length === 0) {
+      <div class="text-center py-5">
+        <i class="bi bi-person-x text-muted" style="font-size: 40px;"></i>
+        <p class="text-muted mt-2">No hay profesionales con los filtros seleccionados.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Profesional</th>
+              <th>Tipo</th>
+              <th class="d-none d-md-table-cell">Especialidad</th>
+              <th class="d-none d-lg-table-cell">Intervalo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (prof of filtered; track prof.id) {
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center fw-medium flex-shrink-0"
+                         style="width: 40px; height: 40px; font-size: 14px;">
+                      {{ prof.firstName[0] }}{{ prof.lastName[0] }}
+                    </div>
+                    <div>
+                      <div class="fw-medium">
+                        {{ prof.type === 'MEDICO' ? 'Dr.' : 'Lic.' }}
+                        {{ prof.firstName }} {{ prof.lastName }}
+                      </div>
+                      <small class="text-muted">{{ prof.email }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge"
+                        [class.bg-primary]="prof.type === 'MEDICO'"
+                        [class.bg-info]="prof.type === 'TERAPISTA'">
+                    {{ prof.type === 'MEDICO' ? 'Médico' : 'Terapista' }}
+                  </span>
+                </td>
+                <td class="d-none d-md-table-cell">
+                  <small>{{ prof.specialty | specialtyLabel }}</small>
+                </td>
+                <td class="d-none d-lg-table-cell">
+                  <small>{{ prof.intervalMinutes }} min</small>
+                </td>
+                <td>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           [checked]="prof.isActive"
+                           (change)="toggleActive(prof)">
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <a [routerLink]="['/professionals', prof.id, 'edit']"
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a [routerLink]="['/professionals', prof.id, 'availability']"
+                       class="btn btn-sm btn-outline-secondary">
+                      <i class="bi bi-clock"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>

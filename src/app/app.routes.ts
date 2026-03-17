@@ -65,14 +65,42 @@ export const routes: Routes = [
         loadComponent: () => import('./features/patients/patient-list/patient-list')
           .then(m => m.PatientListComponent),
       },
+      {
+        path: 'patients/new',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'AGENDADOR']},
+        loadComponent: () => import('./features/patients/patient-form/patient-form')
+          .then(m => m.PatientFormComponent),
+      },
+      {
+        path: 'patients/:id/edit',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'AGENDADOR']},
+        loadComponent: () => import('./features/patients/patient-form/patient-form')
+          .then(m => m.PatientFormComponent),
+      },
 
       // Profesionales — solo Admin
       {
-        path: 'professionals',
+      path: 'professionals',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] },
         loadComponent: () => import('./features/professionals/professional-list/professional-list')
           .then(m => m.ProfessionalListComponent),
+      },
+      {
+        path: 'professionals/new',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./features/professionals/professional-form/professional-form')
+          .then(m => m.ProfessionalFormComponent),
+      },
+      {
+        path: 'professionals/:id/edit',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./features/professionals/professional-form/professional-form')
+          .then(m => m.ProfessionalFormComponent),
       },
       {
         path: 'professionals/:id/availability',
