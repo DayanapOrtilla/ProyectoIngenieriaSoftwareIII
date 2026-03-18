@@ -1,3 +1,4 @@
 .login-container {
-    background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #e5e5f7 120px ), repeating-linear-gradient( #459ff755, #459ff7 );
+    background: #4da9df;
+    background: radial-gradient(circle,rgb(67, 176, 231) 0%, rgb(1, 3, 84) 100%);
 }

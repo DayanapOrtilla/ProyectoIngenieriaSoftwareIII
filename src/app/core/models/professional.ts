@@ -15,7 +15,7 @@ export interface Professional {
 export interface Availability {
   id:             string;
   professionalId: string;
-  dayOfWeek:      number; // 1=Lunes … 6=Sábado
+  dayOfWeek:      number; // 0=Domingo, 1=Lunes … 6=Sábado
   startTime:      string; // "08:00"
   endTime:        string; // "17:00"
 }

@@ -5,22 +5,25 @@ import { RouterLink }    from '@angular/router';
 import { FormsModule }   from '@angular/forms';
 import { Subscription }  from 'rxjs';
 import { AuthService }   from '../../core/services/auth.service';
-import { MockService }   from '../../shared/services/mock.service';
 import type { Appointment }   from '../../core/models/appointment';
 import type { Professional }  from '../../core/models/professional';
 import { StatusLabelPipe }    from '../../shared/pipes/status-label-pipe';
 import { StatusBadgePipe }    from '../../shared/pipes/status-badge-pipe';
 import { SpecialtyLabelPipe } from '../../shared/pipes/specialty-label-pipe';
+import { AppointmentsService } from '../../core/services/appointments.service';
+import { ProfessionalsService } from '../../core/services/professionals.service';
+
 
 @Component({
   selector:    'app-dashboard',
   standalone:  true,
-  imports:     [RouterLink, FormsModule, StatusLabelPipe, StatusBadgePipe, SpecialtyLabelPipe],
+  imports:     [RouterLink, FormsModule, StatusLabelPipe, StatusBadgePipe, SpecialtyLabelPipe, ],
   templateUrl: './dashboard.html',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   protected auth = inject(AuthService);
-  private   mock = inject(MockService);
+  private appointmentSvc = inject(AppointmentsService);
+  private proffesionalSvc = inject(ProfessionalsService);
 
   // Arrays donde guardamos los datos cuando llegan del Observable
   protected appointments:  Appointment[]  = [];
@@ -87,7 +90,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadAppointments(): void {
     this.loading = true;
 
-    const sub = this.mock.getAppointments().subscribe({
+    const sub = this.appointmentSvc.getAll().subscribe({
       next: (data) => {
         this.appointments = data;
         this.loading = false;
@@ -102,7 +105,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private loadProfessionals(): void {
-    const sub = this.mock.getProfessionals().subscribe({
+    const sub = this.proffesionalSvc.getAll().subscribe({
       next:  (data) => { this.professionals = data; },
       error: (err)  => { console.error('Error cargando profesionales:', err); }
     });

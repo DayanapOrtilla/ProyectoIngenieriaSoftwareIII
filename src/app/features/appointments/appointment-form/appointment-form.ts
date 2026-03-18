@@ -2,6 +2,16 @@ import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+<<<<<<< HEAD
+import { Subscription }            from 'rxjs';
+import { AppointmentsService, BookingState, EMPTY_BOOKING } from '../../../core/services/appointments.service';
+import { PatientsService, CreatePatientDto } from '../../../core/services/patients.service';
+import { AuthService }             from '../../../core/services/auth.service';
+import type { Professional }       from '../../../core/models/professional';
+import type { Specialty }          from '../../../core/models/professional';
+import type { Patient }            from '../../../core/models/patient';
+import { SpecialtyLabelPipe }      from '../../../shared/pipes/specialty-label-pipe';
+=======
 import { Subscription } from 'rxjs';
 import { AppointmentsService, BookingState, EMPTY_BOOKING } from '../appointments.service';
 import { PatientsService, CreatePatientDto } from '../../patients/patients.service';
@@ -9,6 +19,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import type { Professional, Specialty } from '../../../core/models/professional';
 import type { Patient } from '../../../core/models/patient';
 import { SpecialtyLabelPipe } from '../../../shared/pipes/specialty-label-pipe';
+>>>>>>> d1d6e2b283614a3e9f889296394e84fafa10fd01
 
 const SPECIALTY_DESCRIPTIONS: Record<Specialty, string> = {
   QUIROPRAXIA: 'Ajuste y alineación de columna vertebral',
@@ -257,6 +268,29 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
   }
 
   protected confirm(): void {
+<<<<<<< HEAD
+    // Modo paciente: asigna el usuario actual como paciente
+    if (!this.isSchedulerMode()) {
+      const user = this.auth.currentUser();
+      this.booking.patient = {
+        id:        user!.id,
+        firstName: user!.email.split('@')[0], // temporal hasta tener perfil completo
+        lastName:  '',
+        phone:     '',
+      };
+    }
+    // Modo agendador: el paciente ya está en this.selectedPatient
+    else if (this.selectedPatient) {
+      this.booking.patient = {
+        id:        this.selectedPatient.id,
+        firstName: this.selectedPatient.firstName,
+        lastName:  this.selectedPatient.lastName,
+        phone:     this.selectedPatient.phone,
+      };
+    }
+
+=======
+>>>>>>> d1d6e2b283614a3e9f889296394e84fafa10fd01
     this.loading = true;
     this.errorMsg = null;
 

@@ -1,1 +1,158 @@
-<p>patient-list works!</p>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="mb-0 fw-medium">Pacientes</h4>
+    <small class="text-muted">Registro de pacientes del centro</small>
+  </div>
+  <a routerLink="/patients/new"
+     class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-person-plus"></i>
+    Nuevo paciente
+  </a>
+</div>
+
+<!-- Métricas -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="p-2 rounded-3 bg-body-secondary text-center">
+      <div class="text-muted small mb-1">Total</div>
+      <div class="fs-4 fw-medium">{{ patients.length }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-2 rounded-3 bg-body-secondary text-center">
+      <div class="text-muted small mb-1">Activos</div>
+      <div class="fs-4 fw-medium text-success">{{ totalActive }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-2 rounded-3 bg-body-secondary text-center">
+      <div class="text-muted small mb-1">Inactivos</div>
+      <div class="fs-4 fw-medium text-danger">{{ totalInactive }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Búsqueda -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body py-3">
+    <div class="input-group">
+      <span class="input-group-text bg-white">
+        <i class="bi bi-search text-muted"></i>
+      </span>
+      <input type="text"
+             class="form-control border-start-0"
+             placeholder="Buscar por nombre o documento..."
+             [(ngModel)]="searchTerm">
+    </div>
+  </div>
+</div>
+
+<!-- Lista -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="text-muted mt-2">Cargando pacientes...</p>
+      </div>
+    } @else if (filtered.length === 0) {
+      <div class="text-center py-5">
+        <i class="bi bi-person-x text-muted" style="font-size: 40px;"></i>
+        <p class="text-muted mt-2">
+          {{ searchTerm ? 'No se encontraron pacientes con ese criterio.' : 'No hay pacientes registrados.' }}
+        </p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Paciente</th>
+              <th class="d-none d-md-table-cell">Documento</th>
+              <th class="d-none d-md-table-cell">Teléfono</th>
+              <th class="d-none d-lg-table-cell">Género</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (patient of filtered; track patient.id) {
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center fw-medium flex-shrink-0"
+                         style="width: 40px; height: 40px; font-size: 14px;">
+                      {{ patient.firstName[0] }}{{ patient.lastName[0] }}
+                    </div>
+                    <div>
+                      <div class="fw-medium">
+                        {{ patient.firstName }} {{ patient.lastName }}
+                      </div>
+                      @if (patient.email) {
+                        <small class="text-muted">{{ patient.email }}</small>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="d-none d-md-table-cell">
+                  <small>{{ patient.documentId }}</small>
+                </td>
+                <td class="d-none d-md-table-cell">
+                  <small>{{ patient.phone }}</small>
+                </td>
+                <td class="d-none d-lg-table-cell">
+                  <small>{{ patient.gender }}</small>
+                </td>
+                <td>
+                  @if (patient.isActive) {
+                    <span class="badge bg-success">Activo</span>
+                  } @else {
+                    <span class="badge bg-secondary">Inactivo</span>
+                  }
+                </td>
+                <td>
+                  <div class="d-flex gap-2">
+
+                    <!-- Editar — Admin y Agendador -->
+                    <a [routerLink]="['/patients', patient.id, 'edit']"
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+
+                    <!-- Desactivar — Admin y Agendador -->
+                    @if (canDeactivate && patient.isActive) {
+                      <button class="btn btn-sm btn-outline-warning"
+                              (click)="deactivate(patient)"
+                              title="Desactivar paciente">
+                        <i class="bi bi-person-dash"></i>
+                      </button>
+                    }
+
+                    <!-- Eliminar — solo Admin -->
+                    @if (canDelete) {
+                      <button class="btn btn-sm btn-outline-danger"
+                              (click)="delete(patient)"
+                              title="Eliminar paciente">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    }
+
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="px-4 py-3 border-top">
+        <small class="text-muted">
+          {{ filtered.length }} paciente{{ filtered.length !== 1 ? 's' : '' }}
+          {{ searchTerm ? 'encontrados' : 'en total' }}
+        </small>
+      </div>
+    }
+
+  </div>
+</div>

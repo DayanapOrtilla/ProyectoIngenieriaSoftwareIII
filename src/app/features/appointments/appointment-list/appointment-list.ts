@@ -2,13 +2,13 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink }          from '@angular/router';
 import { FormsModule }         from '@angular/forms';
 import { Subscription }        from 'rxjs';
-import { AppointmentsService } from '../appointments.service';
-import { MockService }         from '../../../shared/services/mock.service';
+import { AppointmentsService } from '../../../core/services/appointments.service';
 import type { Appointment }    from '../../../core/models/appointment';
 import type { Professional }   from '../../../core/models/professional';
 import { StatusLabelPipe }     from '../../../shared/pipes/status-label-pipe';
 import { StatusBadgePipe }     from '../../../shared/pipes/status-badge-pipe';
 import { SpecialtyLabelPipe }  from '../../../shared/pipes/specialty-label-pipe';
+import { ProfessionalsService } from '../../../core/services/professionals.service';
 
 @Component({
   selector:    'app-appointment-list',
@@ -18,7 +18,7 @@ import { SpecialtyLabelPipe }  from '../../../shared/pipes/specialty-label-pipe'
 })
 export class AppointmentListComponent implements OnInit, OnDestroy {
   private svc  = inject(AppointmentsService);
-  private mock = inject(MockService);
+  private professionalSvc = inject(ProfessionalsService);
   private subs = new Subscription();
 
   // ── Estado ────────────────────────────────────────────────
@@ -46,7 +46,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   }
 
   private loadProfessionals(): void {
-    const sub = this.mock.getProfessionals().subscribe({
+    const sub = this.professionalSvc.getAll().subscribe({
       next: (data) => { this.professionals = data.filter(p => p.isActive); },
     });
     this.subs.add(sub);
