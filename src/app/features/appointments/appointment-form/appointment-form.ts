@@ -299,9 +299,13 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.confirmed = true;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.errorMsg = 'Ocurrió un error al agendar la cita. Por favor intente de nuevo.';
+        // Muestra el mensaje específico del backend (ej: duplicado de cita)
+        // o un mensaje genérico si no hay detalle disponible
+        this.errorMsg =
+          err?.error?.message ??
+          'Ocurrió un error al agendar la cita. Por favor intente de nuevo.';
       }
     });
 
