@@ -1,7 +1,7 @@
 import type { Patient } from './patient'; 
 import type { Professional } from './professional';
 
-export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW'; 
+export type AppointmentStatus = 'PENDIENTE' | 'CONFIRMADA' | 'COMPLETADA' | 'CANCELADA' | 'NO_ASISTE'; 
 
 export interface Appointment { 
     id: string; 

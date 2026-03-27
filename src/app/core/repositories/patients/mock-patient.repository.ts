@@ -8,9 +8,9 @@ import type { CreatePatientDto, UpdatePatientDto } from '../../services/patients
 export class MockPatientRepository extends PatientRepository {
 
   private data: Patient[] = [
-    { id: 'pa1', documentId: '1234567890', firstName: 'Juan',  lastName: 'García', phone: '3001234567', gender: 'MASCULINO', email: 'juan@email.com', isActive: true },
-    { id: 'pa2', documentId: '9876543210', firstName: 'María', lastName: 'López',  phone: '3109876543', gender: 'FEMENINO',  isActive: true },
-    { id: 'pa3', documentId: '1122334455', firstName: 'Pedro', lastName: 'Suárez', phone: '3201122334', gender: 'MASCULINO', isActive: true },
+    { id: 'pa1', document: '1234567890', firstName: 'Juan',  lastName: 'García', birthdate: new Date('2002-01-02'), phone: '3001234567', gender: 'MASCULINO', email: 'juan@email.com', isActive: true },
+    { id: 'pa2', document: '9876543210', firstName: 'María', lastName: 'López', birthdate: new Date('1995-05-15'), phone: '3109876543', gender: 'FEMENINO',  isActive: true },
+    { id: 'pa3', document: '1122334455', firstName: 'Pedro', lastName: 'Suárez', birthdate: new Date('1988-03-20'), phone: '3201122334', gender: 'MASCULINO', isActive: true },
     ];
 
   findAll(): Observable<Patient[]> {
@@ -27,7 +27,7 @@ export class MockPatientRepository extends PatientRepository {
     return of(this.data.filter(p =>
       p.firstName.toLowerCase().includes(lower)  ||
       p.lastName.toLowerCase().includes(lower)   ||
-      p.documentId.includes(lower)               ||
+      p.document.includes(lower)               ||
       `${p.firstName} ${p.lastName}`.toLowerCase().includes(lower)
     ));
   }

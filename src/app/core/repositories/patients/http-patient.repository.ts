@@ -24,7 +24,13 @@ export class HttpPatientRepository extends PatientRepository {
   }
 
   save(dto: CreatePatientDto): Observable<Patient> {
-    return this.http.post<Patient>(this.url, dto);
+    const body = { ...dto };
+  
+    if (!body.birthdate) {
+      delete body.birthdate;
+    }
+
+    return this.http.post<Patient>(this.url, body);
   }
 
   update(id: string, dto: Partial<CreatePatientDto>): Observable<Patient> {

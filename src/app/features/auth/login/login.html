@@ -21,12 +21,12 @@
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
         <div class="mb-3">
-          <label class="form-label">Correo electrónico</label>
-          <input type="email" formControlName="email"
+          <label class="form-label">Identificación o usuario</label>
+          <input type="text" formControlName="user"
                  class="form-control"
-                 [class.is-invalid]="isInvalid('email')"
-                 placeholder="usuario@piedra-azul.com">
-          <div class="invalid-feedback">Ingresa un correo válido.</div>
+                 [class.is-invalid]="isInvalid('user')"
+                 placeholder="Ingrese su documento o usuario">
+          <div class="invalid-feedback">Ingresa un usuario o documento válido.</div>
         </div>
 
         <div class="mb-4">

@@ -37,11 +37,21 @@
 
             <div class="col-12">
               <label class="form-label">Número de documento *</label>
-              <input formControlName="documentId"
+              <input formControlName="document"
                      class="form-control"
-                     [class.is-invalid]="isInvalid('documentId')"
+                     [class.is-invalid]="isInvalid('document')"
                      placeholder="Cédula o tarjeta de identidad">
               <div class="invalid-feedback">El documento es obligatorio.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Fecha de nacimiento</label>
+              <input type="date"
+                     formControlName="birthdate"
+                     class="form-control"
+                     [class.is-invalid]="isInvalid('birthdate')"
+                     placeholder="Fecha de nacimiento opcional">
+              <div class="invalid-feedback">Registre su fecha de nacimiento.</div>
             </div>
 
             <div class="col-md-6">

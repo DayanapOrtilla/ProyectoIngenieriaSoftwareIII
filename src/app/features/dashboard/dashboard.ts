@@ -1,6 +1,6 @@
 // src/app/features/dashboard/dashboard.component.ts
 
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink }    from '@angular/router';
 import { FormsModule }   from '@angular/forms';
 import { Subscription }  from 'rxjs';
@@ -26,8 +26,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private proffesionalSvc = inject(ProfessionalsService);
 
   // Arrays donde guardamos los datos cuando llegan del Observable
-  protected appointments:  Appointment[]  = [];
-  protected professionals: Professional[] = [];
+  protected appointments = signal<Appointment[]> ([]);
+  protected professionals = signal<Professional[]> ([]);
   protected loading = false;
 
   // Filtros — propiedades normales ligadas al template con ngModel
@@ -42,11 +42,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // ── Visibilidad por rol ──────────────────────────────────
   // Getters en lugar de signals — Angular los evalúa cada vez
   // que el template los necesita, sin complejidad adicional
-  protected get showAgenda()              { return this.auth.hasRole('ADMIN', 'AGENDADOR', 'MEDICO', 'TERAPISTA'); }
+  protected get showAgenda()              { return this.auth.hasRole('ADMINISTRADOR', 'AGENDADOR', 'MEDICO', 'TERAPISTA'); }
   protected get showQuickActions()        { return this.auth.hasRole('AGENDADOR'); }
-  protected get showProfessionals()       { return this.auth.hasRole('ADMIN'); }
+  protected get showProfessionals()       { return this.auth.hasRole('ADMINISTRADOR'); }
   protected get showPatientBooking()      { return this.auth.hasRole('PACIENTE'); }
-  protected get showAppointmentMetrics()  { return this.auth.hasRole('ADMIN', 'AGENDADOR', 'MEDICO', 'TERAPISTA'); }
+  protected get showAppointmentMetrics()  { return this.auth.hasRole('ADMINISTRADOR', 'AGENDADOR', 'MEDICO', 'TERAPISTA'); }
   protected get showPatientMetrics()      { return this.auth.hasRole('PACIENTE'); }
 
   // ── Datos filtrados ──────────────────────────────────────
@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // un filtro. Cuando el backend esté listo, esto se convierte
   // en una nueva llamada al servicio con los filtros como params.
   protected get filteredAppointments(): Appointment[] {
-    return this.appointments.filter(a => {
+    return this.appointments().filter(a => {
       const byDate = !this.selectedDate           || a.date === this.selectedDate;
       const byProf = !this.selectedProfessionalId || a.professional.id === this.selectedProfessionalId;
       return byDate && byProf;
@@ -63,12 +63,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // ── Contadores para métricas ─────────────────────────────
   protected get totalToday()     { return this.filteredAppointments.length; }
-  protected get totalConfirmed() { return this.filteredAppointments.filter(a => a.status === 'CONFIRMED').length; }
-  protected get totalPending()   { return this.filteredAppointments.filter(a => a.status === 'PENDING').length; }
-  protected get totalCompleted() { return this.filteredAppointments.filter(a => a.status === 'COMPLETED').length; }
+  protected get totalConfirmed() { return this.filteredAppointments.filter(a => a.status === 'CONFIRMADA').length; }
+  protected get totalPending()   { return this.filteredAppointments.filter(a => a.status === 'PENDIENTE').length; }
+  protected get totalCompleted() { return this.filteredAppointments.filter(a => a.status === 'COMPLETADA').length; }
 
   protected get activeProfessionals(): Professional[] {
-    return this.professionals.filter(p => p.isActive);
+    return this.professionals().filter(p => p.isActive);
   }
 
   // ── Ciclo de vida ────────────────────────────────────────
@@ -90,9 +90,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadAppointments(): void {
     this.loading = true;
 
-    const sub = this.appointmentSvc.getAll().subscribe({
+    const sub = this.appointmentSvc.getAll(this.selectedProfessionalId, this.selectedDate).subscribe({
       next: (data) => {
-        this.appointments = data;
+        this.appointments.set(data);
         this.loading = false;
       },
       error: (err) => {
@@ -106,7 +106,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private loadProfessionals(): void {
     const sub = this.proffesionalSvc.getAll().subscribe({
-      next:  (data) => { this.professionals = data; },
+      next:  (data) => { this.professionals.set(data); },
       error: (err)  => { console.error('Error cargando profesionales:', err); }
     });
 

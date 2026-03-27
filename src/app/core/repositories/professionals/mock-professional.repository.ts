@@ -1,7 +1,7 @@
 import { Injectable }        from '@angular/core';
 import { Observable, of }    from 'rxjs';
 import { ProfessionalRepository } from './professional.repository';
-import type { Professional } from '../../models/professional';
+import type { Professional, Specialty } from '../../models/professional';
 import type { CreateProfessionalDto, UpdateProfessionalDto } from '../../../../app/core/services/professionals.service';
 
 @Injectable()
@@ -16,6 +16,10 @@ export class MockProfessionalRepository extends ProfessionalRepository {
 
   findAll(): Observable<Professional[]> {
     return of([...this.data]);
+  }
+
+  getProfessionalBySpecialty(specialty: Specialty): Observable<Professional[]> {
+    return of(this.data.filter(p => p.specialty === specialty));
   }
 
   findById(id: string): Observable<Professional | undefined> {

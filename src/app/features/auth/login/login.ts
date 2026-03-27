@@ -17,7 +17,7 @@ export class LoginComponent {
   private fb     = inject(FormBuilder);
 
   form = this.fb.group({
-    email:    ['', [Validators.required, Validators.email]],
+    user:    ['', [Validators.required,]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
@@ -34,8 +34,8 @@ export class LoginComponent {
     this.errorMsg.set(null);
 
     try {
-      const { email, password } = this.form.value;
-      await this.auth.login({ email: email!, password: password! });
+      const { user, password } = this.form.value;
+      await this.auth.login({ user: user!, password: password! });
       this.router.navigate(['/dashboard']);
     } catch {
       this.errorMsg.set('Correo o contraseña incorrectos.');

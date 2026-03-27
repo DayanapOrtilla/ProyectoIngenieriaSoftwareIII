@@ -2,11 +2,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 import type { AppointmentStatus } from '../../core/models/appointment';
 
 const BADGES: Record<AppointmentStatus, string> = {
-  PENDING:   'bg-warning text-dark',
-  CONFIRMED: 'bg-primary',
-  COMPLETED: 'bg-success',
-  CANCELLED: 'bg-danger',
-  NO_SHOW:   'bg-secondary',
+  PENDIENTE:   'bg-warning text-dark',
+  CONFIRMADA: 'bg-primary',
+  COMPLETADA: 'bg-success',
+  CANCELADA: 'bg-danger',
+  NO_ASISTE:   'bg-secondary',
 };
 
 @Pipe({ name: 'statusBadge', standalone: true })

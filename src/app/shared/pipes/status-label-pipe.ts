@@ -2,11 +2,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 import type { AppointmentStatus } from '../../core/models/appointment';
 
 const LABELS: Record<AppointmentStatus, string> = {
-  PENDING:   'Pendiente',
-  CONFIRMED: 'Confirmada',
-  COMPLETED: 'Realizada',
-  CANCELLED: 'Cancelada',
-  NO_SHOW:   'No asistió',
+  PENDIENTE:   'PENDIENTE',
+  CONFIRMADA: 'CONFIRMADA',
+  COMPLETADA: 'COMPLETADA',
+  CANCELADA: 'CANCELADA',
+  NO_ASISTE:   'NO ASISTE',
 };
 
 @Pipe({ name: 'statusLabel', standalone: true })

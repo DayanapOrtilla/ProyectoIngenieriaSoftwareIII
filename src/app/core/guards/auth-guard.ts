@@ -6,8 +6,9 @@ export const authGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.isLoggedIn()) return true;
+  if (auth.getToken()) {
+    return true;
+  }
 
-  // Guarda la URL intentada para redirigir después del login
   return router.createUrlTree(['/login']);
 };

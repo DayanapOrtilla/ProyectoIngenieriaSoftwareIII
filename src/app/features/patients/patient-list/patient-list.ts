@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink }       from '@angular/router';
 import { FormsModule }      from '@angular/forms';
 import { Subscription }     from 'rxjs';
@@ -18,33 +18,33 @@ export class PatientListComponent implements OnInit, OnDestroy {
   private subs = new Subscription();
   protected auth = inject(AuthService);
 
-  protected patients:  Patient[] = [];
+  protected patients = signal<Patient[]> ([]);
   protected loading  = false;
   protected searchTerm = '';
 
   // Permisos por rol
-  protected get canDelete()     { return this.auth.hasRole('ADMIN'); }
-  protected get canDeactivate() { return this.auth.hasRole('AGENDADOR', 'ADMIN'); }
+  protected get canDelete()     { return this.auth.hasRole('ADMINISTRADOR'); }
+  protected get canDeactivate() { return this.auth.hasRole('AGENDADOR', 'ADMINISTRADOR'); }
 
   protected get filtered(): Patient[] {
     if (!this.searchTerm || this.searchTerm.trim().length < 2) {
-      return this.patients;
+      return this.patients();
     }
     const lower = this.searchTerm.toLowerCase().trim();
-    return this.patients.filter(p =>
+    return this.patients().filter(p =>
       p.firstName.toLowerCase().includes(lower)  ||
       p.lastName.toLowerCase().includes(lower)   ||
-      p.documentId.includes(lower)               ||
+      p.document.includes(lower)               ||
       `${p.firstName} ${p.lastName}`.toLowerCase().includes(lower)
     );
   }
 
   protected get totalActive(): number {
-    return this.patients.filter(p => p.isActive).length;
+    return this.patients().filter(p => p.isActive).length;
   }
 
   protected get totalInactive(): number {
-    return this.patients.filter(p => !p.isActive).length;
+    return this.patients().filter(p => !p.isActive).length;
   }
 
   ngOnInit(): void {
@@ -58,7 +58,7 @@ export class PatientListComponent implements OnInit, OnDestroy {
   private load(): void {
     this.loading = true;
     const sub = this.svc.getAll().subscribe({
-      next:  (data) => { this.patients = data; this.loading = false; },
+      next:  (data) => { this.patients.set(data); this.loading = false; },
       error: ()     => { this.loading = false; }
     });
     this.subs.add(sub);

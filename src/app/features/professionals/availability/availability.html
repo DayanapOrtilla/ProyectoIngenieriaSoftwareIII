@@ -1,1 +1,94 @@
-<p>availability works!</p>
+<div class="availability-container">
+  @if (professional) {
+    <div class="alert alert-light border-0 py-2 mb-3 bg-opacity-10 d-flex justify-content-between align-items-center">
+        <span class="text-muted small">
+            <i class="bi bi-info-circle me-1"></i>
+            {{ professional.type === 'MEDICO' ? 'Dr.' : 'Lic.' }} {{ professional.firstName }} {{ professional.lastName }} 
+            · <strong>{{ professional.intervalMinutes }} min</strong> por sesión
+        </span>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary spinner-border-sm"></div>
+      <p class="text-muted small mt-2">Cargando disponibilidad...</p>
+    </div>
+  } @else {
+
+    @if (saved()) {
+      <div class="alert alert-success d-flex align-items-center gap-2 py-2 mb-3 animate-fade-in">
+        <i class="bi bi-check-circle-fill"></i>
+        <span class="small">Disponibilidad actualizada.</span>
+      </div>
+    }
+
+    @if (errorMsg()) {
+      <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3">
+        <i class="bi bi-exclamation-circle"></i>
+        <span class="small">{{ errorMsg() }}</span>
+      </div>
+    }
+
+    <div class="card border shadow-sm mb-4">
+      <div class="list-group list-group-flush">
+        @for (day of days; track day.dayOfWeek) {
+          <div class="list-group-item d-flex align-items-center gap-3 p-3 flex-wrap"
+               [class.bg-light]="!day.isActive">
+
+            <div class="form-check form-switch mb-0" style="min-width: 140px;">
+              <input class="form-check-input"
+                     type="checkbox"
+                     [(ngModel)]="day.isActive"
+                     [id]="'day-' + day.dayOfWeek">
+              <label class="form-check-label fw-medium" [for]="'day-' + day.dayOfWeek">
+                {{ day.label }}
+              </label>
+            </div>
+
+            @if (day.isActive) {
+              <div class="d-flex align-items-center gap-2 flex-wrap animate-fade-in">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-muted x-small">De</span>
+                  <input type="time"
+                         class="form-control form-control-sm"
+                         style="width: 110px;"
+                         [(ngModel)]="day.startTime">
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-muted x-small">A</span>
+                  <input type="time"
+                         class="form-control form-control-sm"
+                         style="width: 110px;"
+                         [(ngModel)]="day.endTime">
+                </div>
+              </div>
+
+              <div class="ms-auto text-end">
+                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fw-normal">
+                  {{ calcSlots(day) }} turnos
+                </span>
+              </div>
+            } @else {
+              <span class="ms-auto text-muted small italic">No laborable</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="d-grid">
+      <button class="btn btn-primary"
+              [disabled]="saving()"
+              (click)="save()">
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Guardando cambios...
+        } @else {
+          <i class="bi bi-calendar-check me-2"></i>
+          Actualizar Horarios
+        }
+      </button>
+    </div>
+  }
+</div>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink }          from '@angular/router';
 import { FormsModule }         from '@angular/forms';
 import { Subscription }        from 'rxjs';
@@ -22,19 +22,19 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   private subs = new Subscription();
 
   // ── Estado ────────────────────────────────────────────────
-  protected appointments:  Appointment[]  = [];
-  protected professionals: Professional[] = [];
+  protected appointments = signal<Appointment[]>([]);
+  protected professionals = signal<Professional[]>([]);
   protected loading = false;
 
   // ── Filtros ───────────────────────────────────────────────
   protected selectedProfessionalId = '';
-  protected selectedDate           = new Date().toISOString().split('T')[0];
+  protected selectedDate = new Date().toISOString().split('T')[0];
 
   // ── Contadores ────────────────────────────────────────────
-  protected get total()     { return this.appointments.length; }
-  protected get confirmed() { return this.appointments.filter(a => a.status === 'CONFIRMED').length; }
-  protected get pending()   { return this.appointments.filter(a => a.status === 'PENDING').length; }
-  protected get completed() { return this.appointments.filter(a => a.status === 'COMPLETED').length; }
+  protected get total() { return this.appointments().length; }
+  protected get confirmed() { return this.appointments().filter(a => a.status === 'CONFIRMADA').length; }
+  protected get pending() { return this.appointments().filter(a => a.status === 'PENDIENTE').length; }
+  protected get completed() { return this.appointments().filter(a => a.status === 'COMPLETADA').length; }
 
   ngOnInit(): void {
     this.loadProfessionals();
@@ -47,20 +47,26 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
   private loadProfessionals(): void {
     const sub = this.professionalSvc.getAll().subscribe({
-      next: (data) => { this.professionals = data.filter(p => p.isActive); },
+      next: (data) => { this.professionals.set(data.filter(p => p.isActive)); },
     });
     this.subs.add(sub);
   }
 
   protected loadAppointments(): void {
     this.loading = true;
-    const profId = this.selectedProfessionalId || undefined;
-    const date   = this.selectedDate           || undefined;
-
-    const sub = this.svc.getAll(profId, date).subscribe({
-      next:  (data) => { this.appointments = data; this.loading = false; },
-      error: ()     => { this.loading = false; }
+  
+  // Usamos el nuevo método que respeta el flujo de roles del backend
+  const sub = this.svc.getHistory(
+    this.selectedProfessionalId || undefined, 
+    this.selectedDate || undefined
+    ).subscribe({
+      next: (data) => {
+        this.appointments.set(data);
+        this.loading = false;
+      },
+      error: () => this.loading = false
     });
+    
     this.subs.add(sub);
   }
 

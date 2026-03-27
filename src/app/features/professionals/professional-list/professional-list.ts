@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, signal } from '@angular/core';
 import { RouterLink }              from '@angular/router';
 import { Subscription }            from 'rxjs';
 import { ProfessionalsService }    from '../../../core/services/professionals.service';
@@ -17,29 +17,27 @@ export class ProfessionalListComponent implements OnInit, OnDestroy {
   private svc  = inject(ProfessionalsService);
   private subs = new Subscription();
 
-  protected professionals: Professional[] = [];
+  protected professionals = signal<Professional[]> ([]);
   protected loading = false;
 
   // Filtros
-  protected filterType:   string = '';
+  protected filterType: string = '';
   protected filterActive: string = '';
 
   protected get filtered(): Professional[] {
-    return this.professionals.filter(p => {
+    return this.professionals().filter(p => {
       const byType   = !this.filterType   || p.type === this.filterType;
-      const byActive = !this.filterActive ||
-        (this.filterActive === 'true'  && p.isActive) ||
-        (this.filterActive === 'false' && !p.isActive);
+      const byActive = !this.filterActive || String(p.isActive) === this.filterActive;
       return byType && byActive;
     });
   }
 
   protected get totalActive(): number {
-    return this.professionals.filter(p => p.isActive).length;
+    return this.professionals().filter(p => p.isActive).length;
   }
 
   protected get totalInactive(): number {
-    return this.professionals.filter(p => !p.isActive).length;
+    return this.professionals().filter(p => !p.isActive).length;
   }
 
   ngOnInit(): void {
@@ -53,7 +51,10 @@ export class ProfessionalListComponent implements OnInit, OnDestroy {
   private load(): void {
     this.loading = true;
     const sub = this.svc.getAll().subscribe({
-      next:  (data) => { this.professionals = data; this.loading = false; },
+      next:  (data) => { 
+        this.professionals.set(data); 
+        this.loading = false;
+      },
       error: ()     => { this.loading = false; }
     });
     this.subs.add(sub);

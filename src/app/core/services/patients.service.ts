@@ -4,9 +4,10 @@ import { PatientRepository }  from '../../core/repositories/patients/patient.rep
 import type { Gender, Patient }       from '../../core/models/patient';
 
 export interface CreatePatientDto {
-  documentId: string;
+  document: string;
   firstName:  string;
   lastName:   string;
+  birthdate?: Date;
   phone:      string;
   gender:     Gender;
   email?:     string;

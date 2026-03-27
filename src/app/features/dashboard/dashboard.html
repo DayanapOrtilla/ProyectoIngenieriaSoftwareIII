@@ -9,7 +9,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <h5 class="mb-0">Bienvenido</h5>
-    <small class="text-muted">{{ auth.currentUser()?.email }}</small>
+    <small class="text-muted">{{ auth.currentUser()?.user }}</small>
   </div>
 </div>
  
@@ -87,7 +87,7 @@
                       [(ngModel)]="selectedProfessionalId"
                       (change)="onFilterChange()">
                 <option value="">Todos los profesionales</option>
-                @for (prof of professionals; track prof.id) {
+                @for (prof of professionals(); track prof.id) {
                   <option [value]="prof.id">
                     {{ prof.firstName }} {{ prof.lastName }}
                   </option>

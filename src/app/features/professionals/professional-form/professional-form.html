@@ -1,141 +1,126 @@
-<div class="container py-4" style="max-width: 680px;">
+<div class="container py-4" style="max-width: 720px;">
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a routerLink="/professionals"
-            class="btn btn-outline-secondary btn-md">
+        <a routerLink="/professionals" class="btn btn-outline-secondary btn-md">
             <i class="bi bi-arrow-left"></i>
         </a>
         <div>
             <h4 class="mb-0 fw-medium">
-            {{ isEditMode() ? 'Editar profesional' : 'Nuevo profesional' }}
+                {{ isEditMode() ? 'Gestión de Profesional' : 'Nuevo profesional' }}
             </h4>
             <small class="text-muted">
-            {{ isEditMode() ? 'Actualiza los datos del profesional' : 'Registra un nuevo médico o terapista' }}
+                {{ isEditMode() ? 'Modifica el perfil o la agenda' : 'Registra un nuevo médico o terapista' }}
             </small>
         </div>
     </div>
 
+    <ul class="nav nav-tabs mb-4 border-bottom-0">
+        <li class="nav-item">
+            <button class="nav-link" 
+                    [class.active]="activeTab() === 'profile'"
+                    (click)="activeTab.set('profile')">
+                <i class="bi bi-person me-2"></i>Perfil
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" 
+                    [class.active]="activeTab() === 'schedule'"
+                    [class.disabled]="!editingId"
+                    (click)="editingId ? activeTab.set('schedule') : null">
+                <i class="bi bi-calendar3 me-2"></i>Disponibilidad
+                @if (!editingId) { <i class="bi bi-lock-fill ms-2 small"></i> }
+            </button>
+        </li>
+    </ul>
+
     <div class="card border-0 shadow-sm">
         <div class="card-body p-4">
 
-            @if (loading() && isEditMode()) {
-            <div class="text-center py-4">
-                <div class="spinner-border text-primary"></div>
-                <p class="text-muted mt-2">Cargando datos...</p>
-            </div>
-            } @else {
-
-            @if (errorMsg()) {
-                <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3">
-                <i class="bi bi-exclamation-circle" style="font-size: 16px;"></i>
-                <span>{{ errorMsg() }}</span>
-                </div>
-            }
-
-            <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-                <div class="row g-3">
-
-                <div class="col-md-6">
-                    <label class="form-label">Nombres *</label>
-                    <input formControlName="firstName"
-                        class="form-control"
-                        [class.is-invalid]="isInvalid('firstName')"
-                        placeholder="Nombres">
-                    <div class="invalid-feedback">El nombre es obligatorio.</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Apellidos *</label>
-                    <input formControlName="lastName"
-                        class="form-control"
-                        [class.is-invalid]="isInvalid('lastName')"
-                        placeholder="Apellidos">
-                    <div class="invalid-feedback">El apellido es obligatorio.</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Tipo *</label>
-                    <select formControlName="type"
-                            class="form-select"
-                            [class.is-invalid]="isInvalid('type')">
-                    <option value="">Seleccionar...</option>
-                    <option value="MEDICO">Médico</option>
-                    <option value="TERAPISTA">Terapista</option>
-                    </select>
-                    <div class="invalid-feedback">Selecciona el tipo.</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Especialidad *</label>
-                    <select formControlName="specialty"
-                            class="form-select"
-                            [class.is-invalid]="isInvalid('specialty')">
-                    <option value="">Seleccionar...</option>
-                    <option value="QUIROPRAXIA">Quiropraxia</option>
-                    <option value="FISIOTERAPIA">Fisioterapia</option>
-                    <option value="TERAPIA_NEURAL">Terapia neural</option>
-                    </select>
-                    <div class="invalid-feedback">Selecciona la especialidad.</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Intervalo de atención (minutos) *</label>
-                    <input type="number"
-                        formControlName="intervalMinutes"
-                        class="form-control"
-                        [class.is-invalid]="isInvalid('intervalMinutes')"
-                        min="1"
-                        placeholder="30">
-                    <div class="invalid-feedback">
-                    El intervalo debe ser un número mayor a cero.
+            @if (activeTab() === 'profile') {
+                @if (loading() && isEditMode()) {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="text-muted mt-2">Cargando datos...</p>
                     </div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Correo electrónico *</label>
-                    <input type="email"
-                        formControlName="email"
-                        class="form-control"
-                        [class.is-invalid]="isInvalid('email')"
-                        placeholder="correo@piedrazul.com">
-                    <div class="invalid-feedback">Ingresa un correo válido.</div>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-check form-switch">
-                    <input class="form-check-input"
-                            type="checkbox"
-                            formControlName="isActive"
-                            id="isActive">
-                    <label class="form-check-label" for="isActive">
-                        Profesional activo
-                    </label>
-                    </div>
-                    <small class="text-muted">
-                    Solo los profesionales activos aparecen disponibles para agendar citas.
-                    </small>
-                </div>
-
-                </div>
-
-                <div class="d-flex gap-3 mt-4">
-                <a routerLink="/professionals"
-                    class="btn btn-outline-secondary flex-grow-1">
-                    Cancelar
-                </a>
-                <button type="submit"
-                        class="btn btn-primary flex-grow-1"
-                        [disabled]="loading()">
-                    @if (loading()) {
-                    <span class="spinner-border spinner-border-sm me-2"></span>
-                    Guardando...
-                    } @else {
-                    <i class="bi bi-check-lg me-2"></i>
-                    {{ isEditMode() ? 'Guardar cambios' : 'Registrar profesional' }}
+                } @else {
+                    @if (errorMsg()) {
+                        <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <span>{{ errorMsg() }}</span>
+                        </div>
                     }
-                </button>
-                </div>
-            </form>
+
+                    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombres *</label>
+                                <input formControlName="firstName" class="form-control" [class.is-invalid]="isInvalid('firstName')">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Apellidos *</label>
+                                <input formControlName="lastName" class="form-control" [class.is-invalid]="isInvalid('lastName')">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo *</label>
+                                <select formControlName="type" class="form-select" [class.is-invalid]="isInvalid('type')">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="MEDICO">MEDICO</option>
+                                    <option value="TERAPISTA">TERAPISTA</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Especialidad *</label>
+                                <select formControlName="specialty" class="form-select" [class.is-invalid]="isInvalid('specialty')">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="QUIROPRAXIA">QUIROPRAXIA</option>
+                                    <option value="FISIOTERAPIA">FISIOTERAPIA</option>
+                                    <option value="TERAPIA NEURAL">TERAPIA NEURAL</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Intervalo (minutos) *</label>
+                                <input type="number" formControlName="intervalMinutes" class="form-control" [class.is-invalid]="isInvalid('intervalMinutes')">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Correo electrónico *</label>
+                                <input type="email" formControlName="email" class="form-control" [class.is-invalid]="isInvalid('email')">
+                            </div>
+                            
+                            @if (!isEditMode()) {
+                                <div class="col-md-6">
+                                    <label class="form-label">Contraseña *</label>
+                                    <input type="password" formControlName="password" class="form-control" [class.is-invalid]="isInvalid('password')">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Confirmar contraseña *</label>
+                                    <input type="password" formControlName="confirm" class="form-control" [class.is-invalid]="isInvalid('confirm') || passwordMismatch">
+                                </div>
+                            }
+
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" formControlName="isActive" id="isActive">
+                                    <label class="form-check-label" for="isActive">Profesional activo</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-4">
+                            <a routerLink="/professionals" class="btn btn-outline-secondary flex-grow-1">Cancelar</a>
+                            <button type="submit" class="btn btn-primary flex-grow-1" [disabled]="loading()">
+                                @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                                {{ isEditMode() ? 'Guardar Cambios' : 'Crear y configurar horario' }}
+                            </button>
+                        </div>
+                    </form>
+                }
             }
+
+            @if (activeTab() === 'schedule' && editingId) {
+                <div class="animate-fade-in">
+                    <app-availability [professionalId]="editingId"></app-availability>
+                </div>
+            }
+
         </div>
     </div>
 </div>

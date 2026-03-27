@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient }          from '@angular/common/http';
+import { HttpClient, HttpParams }          from '@angular/common/http';
 import { Observable }          from 'rxjs';
 import { ProfessionalRepository }  from './professional.repository';
-import type { Professional }       from '../../models/professional';
+import type { Professional, Specialty }       from '../../models/professional';
 import type { CreateProfessionalDto, UpdateProfessionalDto } from '../../../../app/core/services/professionals.service';
 import { environment }             from '../../../../environments/environment';
+import { isActive } from '@angular/router';
 
 @Injectable()
 export class HttpProfessionalRepository extends ProfessionalRepository {
@@ -13,6 +14,11 @@ export class HttpProfessionalRepository extends ProfessionalRepository {
 
   findAll(): Observable<Professional[]> {
     return this.http.get<Professional[]>(this.url);
+  }
+
+  getProfessionalBySpecialty(specialty: Specialty): Observable<Professional[]>{
+    const params = new HttpParams().set('specialty', specialty).set('active','true');
+    return this.http.get<Professional[]>(this.url, {params});
   }
 
   findById(id: string): Observable<Professional | undefined> {

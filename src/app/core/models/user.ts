@@ -1,8 +1,8 @@
-export type UserRole = 'ADMIN' | 'AGENDADOR' | 'MEDICO' | 'TERAPISTA' | 'PACIENTE';
+export type UserRole = 'ADMINISTRADOR' | 'AGENDADOR' | 'MEDICO' | 'TERAPISTA' | 'PACIENTE';
 
 export interface User {
   id:       string;
-  email:    string;
+  user:    string;
   role:     UserRole;
   isActive: boolean;
 }
@@ -13,6 +13,6 @@ export interface AuthResponse {
 }
 
 export interface LoginCredentials {
-  email:    string;
+  user:    string;
   password: string;
 }

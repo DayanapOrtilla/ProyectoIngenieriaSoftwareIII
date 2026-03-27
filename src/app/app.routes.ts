@@ -4,6 +4,11 @@ import { roleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
 
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full',
+  },
   // ── Rutas públicas (sin layout ni guards) ───────────
   {
     path: 'login',
@@ -34,18 +39,18 @@ export const routes: Routes = [
           .then(m => m.DashboardComponent),
       },
 
-      // Citas — Agendador, Admin, Médico, Terapista
+      // Citas — Agendador, ADMINISTRADOR, Médico, Terapista
       {
         path: 'appointments',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN', 'AGENDADOR', 'MEDICO', 'TERAPISTA'] },
+        data: { roles: ['ADMINISTRADOR', 'AGENDADOR', 'MEDICO', 'TERAPISTA'] },
         loadComponent: () => import('./features/appointments/appointment-list/appointment-list')
           .then(m => m.AppointmentListComponent),
       },
       {
         path: 'appointments/new',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN', 'AGENDADOR'], mode: 'scheduler' },
+        data: { roles: ['ADMINISTRADOR', 'AGENDADOR'], mode: 'scheduler' },
         loadComponent: () => import('./features/appointments/appointment-form/appointment-form')
           .then(m => m.AppointmentFormComponent),
       },
@@ -57,55 +62,55 @@ export const routes: Routes = [
           .then(m => m.AppointmentFormComponent),
       },
 
-      // Pacientes — Admin, Agendador
+      // Pacientes — ADMINISTRADOR, Agendador
       {
         path: 'patients',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN', 'AGENDADOR'] },
+        data: { roles: ['ADMINISTRADOR', 'AGENDADOR'] },
         loadComponent: () => import('./features/patients/patient-list/patient-list')
           .then(m => m.PatientListComponent),
       },
       {
         path: 'patients/new',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN', 'AGENDADOR']},
+        data: { roles: ['ADMINISTRADOR', 'AGENDADOR']},
         loadComponent: () => import('./features/patients/patient-form/patient-form')
           .then(m => m.PatientFormComponent),
       },
       {
         path: 'patients/:id/edit',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN', 'AGENDADOR']},
+        data: { roles: ['ADMINISTRADOR', 'AGENDADOR']},
         loadComponent: () => import('./features/patients/patient-form/patient-form')
           .then(m => m.PatientFormComponent),
       },
 
-      // Profesionales — solo Admin
+      // Profesionales — solo ADMINISTRADOR
       {
       path: 'professionals',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN'] },
+        data: { roles: ['ADMINISTRADOR'] },
         loadComponent: () => import('./features/professionals/professional-list/professional-list')
           .then(m => m.ProfessionalListComponent),
       },
       {
         path: 'professionals/new',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN'] },
+        data: { roles: ['ADMINISTRADOR'] },
         loadComponent: () => import('./features/professionals/professional-form/professional-form')
           .then(m => m.ProfessionalFormComponent),
       },
       {
         path: 'professionals/:id/edit',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN'] },
+        data: { roles: ['ADMINISTRADOR'] },
         loadComponent: () => import('./features/professionals/professional-form/professional-form')
           .then(m => m.ProfessionalFormComponent),
       },
       {
         path: 'professionals/:id/availability',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN'] },
+        data: { roles: ['ADMINISTRADOR'] },
         loadComponent: () => import('./features/professionals/availability/availability')
           .then(m => m.AvailabilityComponent),
       },

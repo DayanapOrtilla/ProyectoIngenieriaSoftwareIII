@@ -2,9 +2,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 import type { Specialty } from '../../core/models/professional';
 
 const LABELS: Record<Specialty, string> = {
-  TERAPIA_NEURAL: 'Terapia neural',
-  QUIROPRAXIA:    'Quiropraxia',
-  FISIOTERAPIA:   'Fisioterapia',
+  TERAPIA_NEURAL: 'TERAPIA NEURAL',
+  QUIROPRAXIA:    'QUIROPRAXIA',
+  FISIOTERAPIA:   'FISIOTERAPIA',
 };
 
 @Pipe({ name: 'specialtyLabel', standalone: true })

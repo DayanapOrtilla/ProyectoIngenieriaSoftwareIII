@@ -52,7 +52,7 @@ export class RegisterComponent {
       // Tras registro, inicia sesión automáticamente con el email y contraseña
       // En producción el backend devolverá el token directamente en el registro
       await this.auth.login({
-        email:    this.form.value.email!,
+        user:    this.form.value.documentId!,
         password: this.form.value.password!,
       });
 

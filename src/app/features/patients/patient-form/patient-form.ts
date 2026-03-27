@@ -24,9 +24,10 @@ export class PatientFormComponent implements OnInit, OnDestroy {
   private   editingId: string | null = null;
 
   form = this.fb.group({
-    documentId: ['', [Validators.required]],
+    document: ['', [Validators.required]],
     firstName:  ['', [Validators.required]],
     lastName:   ['', [Validators.required]],
+    birthdate: [''],
     phone:      ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
     gender:     ['', [Validators.required]],
     email:      ['', [Validators.email]],
@@ -48,14 +49,27 @@ export class PatientFormComponent implements OnInit, OnDestroy {
 
   private loadPatient(id: string): void {
     this.loading.set(true);
-    const sub = this.svc.getById(id).subscribe({
-      next: (patient) => {
-        if (patient) this.form.patchValue(patient);
-        this.loading.set(false);
-      },
-      error: () => { this.loading.set(false); }
-    });
-    this.subs.add(sub);
+  const sub = this.svc.getById(id).subscribe({
+    next: (patient) => {
+      if (patient) {
+        // Creamos una copia para no alterar el objeto original
+        this.form.patchValue({
+          ...patient,
+          // Si hay fecha, la convertimos a "YYYY-MM-DD". Si no, enviamos null.
+          birthdate: patient.birthdate 
+            ? new Date(patient.birthdate).toISOString().split('T')[0] 
+            : null,
+          email: patient.email ? patient.email : null
+        });
+      }
+      this.loading.set(false);
+    },
+    error: () => { 
+      this.loading.set(false); 
+      // Aquí podrías añadir un mensaje de error tipo Toast
+    }
+  });
+  this.subs.add(sub);
   }
 
   protected onSubmit(): void {

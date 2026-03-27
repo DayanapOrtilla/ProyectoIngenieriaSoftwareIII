@@ -12,12 +12,12 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { path: '/dashboard',                  label: 'Inicio',         icon: 'bi-speedometer2',  roles: ['ADMIN', 'AGENDADOR', 'MEDICO', 'TERAPISTA', 'PACIENTE'] },
-  { path: '/appointments',                 label: 'Citas',           icon: 'bi-calendar-check',  roles: ['ADMIN', 'AGENDADOR', 'MEDICO', 'TERAPISTA'] },
+  { path: '/dashboard',                  label: 'Inicio',         icon: 'bi-speedometer2',  roles: ['ADMINISTRADOR', 'AGENDADOR', 'MEDICO', 'TERAPISTA', 'PACIENTE'] },
+  { path: '/appointments',                 label: 'Citas',           icon: 'bi-calendar-check',  roles: ['ADMINISTRADOR', 'AGENDADOR', 'MEDICO', 'TERAPISTA'] },
   { path: '/appointments/book',             label: 'Agendar cita',   icon: 'bi-calendar-plus',   roles: ['PACIENTE'] },
-  { path: '/patients',                      label: 'Pacientes',       icon: 'bi-people',          roles: ['ADMIN', 'AGENDADOR'] },
-  { path: '/professionals',                 label: 'Profesionales',   icon: 'bi-person-badge',    roles: ['ADMIN'] },
-  { path: '/professionals/availability',    label: 'Disponibilidad',  icon: 'bi-clock',           roles: ['ADMIN'] },
+  { path: '/patients',                      label: 'Pacientes',       icon: 'bi-people',          roles: ['ADMINISTRADOR', 'AGENDADOR'] },
+  { path: '/professionals',                 label: 'Profesionales',   icon: 'bi-person-badge',    roles: ['ADMINISTRADOR'] },
+  { path: '/professionals/availability',    label: 'Disponibilidad',  icon: 'bi-clock',           roles: ['ADMINISTRADOR'] },
 ];
 
 @Component({
