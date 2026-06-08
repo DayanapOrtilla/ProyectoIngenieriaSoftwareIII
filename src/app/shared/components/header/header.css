@@ -1,7 +1,4 @@
-:root {
-    --var-header-height: 60px;
-}
 header {
-    height: var(--var-header-height);
+    height: 60px;
     color: white;
 }
