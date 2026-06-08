@@ -148,4 +148,22 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   protected delete(id: string) {
     this.appointmenSvc.delete(id);
   }
+
+  formatTime(horaMilitar: string): string {
+    if (!horaMilitar) return '';
+    
+    // Dividimos las horas y minutos
+    const [horas, minutos] = horaMilitar.split(':');
+    let horasNum = parseInt(horas, 10);
+    const ampm = horasNum >= 12 ? 'pm' : 'am';
+    
+    // Convertimos al formato de 12 horas
+    horasNum = horasNum % 12;
+    horasNum = horasNum ? horasNum : 12; // El '0' se convierte en '12'
+    
+    // Agregamos el cero a la izquierda si es necesario
+    const horasStr = horasNum < 10 ? '0' + horasNum : horasNum;
+    
+    return `${horasStr}:${minutos} ${ampm}`;
+  }
 }

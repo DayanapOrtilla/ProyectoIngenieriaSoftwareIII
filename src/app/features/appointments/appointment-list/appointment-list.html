@@ -96,7 +96,7 @@
           <tbody>
             @for (appt of appointments(); track appt.id) {
               <tr>
-                <td class="ps-4"><span class="fw-semibold text-primary">{{ appt.time }}</span></td>
+                <td class="ps-4"><span class="fw-semibold text-primary">{{ formatTime(appt.time)}}</span></td>
                 <td>
                   <div class="fw-semibold">{{ appt.patient.firstName }} {{ appt.patient.lastName }}</div>
                   <small class="text-muted">{{ appt.patient.phone }}</small>
