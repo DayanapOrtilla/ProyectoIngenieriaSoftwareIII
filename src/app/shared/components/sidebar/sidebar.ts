@@ -17,7 +17,6 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/appointments/book',             label: 'Agendar cita',   icon: 'bi-calendar-plus',   roles: ['PACIENTE'] },
   { path: '/patients',                      label: 'Pacientes',       icon: 'bi-people',          roles: ['ADMINISTRADOR', 'AGENDADOR'] },
   { path: '/professionals',                 label: 'Profesionales',   icon: 'bi-person-badge',    roles: ['ADMINISTRADOR'] },
-  { path: '/professionals/availability',    label: 'Disponibilidad',  icon: 'bi-clock',           roles: ['ADMINISTRADOR'] },
 ];
 
 @Component({
