@@ -13,8 +13,8 @@ import { SpecialtyLabelPipe } from '../../../shared/pipes/specialty-label-pipe';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 
 const SPECIALTY_DESCRIPTIONS: Record<Specialty, string> = {
-  QUIROPRAXIA: 'Ajuste y alineaciÃ³n de columna vertebral',
-  FISIOTERAPIA: 'RehabilitaciÃ³n fÃ­sica y muscular',
+  QUIROPRAXIA: 'Ajuste y alineación de columna vertebral',
+  FISIOTERAPIA: 'Rehabilitación fí­sica y muscular',
   TERAPIA_NEURAL: 'Tratamiento del sistema nervioso',
 };
 
