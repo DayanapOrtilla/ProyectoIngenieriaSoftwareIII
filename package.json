@@ -22,6 +22,8 @@
     "@angular/router": "^22.1.0",
     "@angular/ssr": "^22.1.2",
     "express": "^5.1.0",
+    "keycloak-angular": "^22.0.0",
+    "keycloak-js": "^26.2.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
