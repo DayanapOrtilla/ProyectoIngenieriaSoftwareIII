@@ -1,7 +1,14 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription }    from 'rxjs';
+import { Subscription } from 'rxjs';
 import { PatientsService } from '../../../core/services/patients.service';
 import type { CreatePatientDto } from '../../../core/services/patients.service';
 
@@ -9,29 +16,30 @@ import type { CreatePatientDto } from '../../../core/services/patients.service';
   selector: 'app-patient-form',
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './patient-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './patient-form.css',
 })
 export class PatientFormComponent implements OnInit, OnDestroy {
-  private svc    = inject(PatientsService);
+  private svc = inject(PatientsService);
   private router = inject(Router);
-  private route  = inject(ActivatedRoute);
-  private fb     = inject(FormBuilder);
-  private subs   = new Subscription();
+  private route = inject(ActivatedRoute);
+  private fb = inject(FormBuilder);
+  private subs = new Subscription();
 
   protected isEditMode = signal(false);
-  protected loading    = signal(false);
-  protected errorMsg   = signal<string | null>(null);
-  private   editingId: string | null = null;
+  protected loading = signal(false);
+  protected errorMsg = signal<string | null>(null);
+  private editingId: string | null = null;
 
   form = this.fb.group({
     document: ['', [Validators.required]],
-    firstName:  ['', [Validators.required]],
-    lastName:   ['', [Validators.required]],
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
     birthdate: [''],
-    phone:      ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-    gender:     ['', [Validators.required]],
-    email:      ['', [Validators.email]],
-    isActive:   [true],
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    gender: ['', [Validators.required]],
+    email: ['', [Validators.email]],
+    isActive: [true],
   });
 
   ngOnInit(): void {
@@ -49,27 +57,27 @@ export class PatientFormComponent implements OnInit, OnDestroy {
 
   private loadPatient(id: string): void {
     this.loading.set(true);
-  const sub = this.svc.getById(id).subscribe({
-    next: (patient) => {
-      if (patient) {
-        // Creamos una copia para no alterar el objeto original
-        this.form.patchValue({
-          ...patient,
-          // Si hay fecha, la convertimos a "YYYY-MM-DD". Si no, enviamos null.
-          birthdate: patient.birthdate 
-            ? new Date(patient.birthdate).toISOString().split('T')[0] 
-            : null,
-          email: patient.email ? patient.email : null
-        });
-      }
-      this.loading.set(false);
-    },
-    error: () => { 
-      this.loading.set(false); 
-      // Aquí podrías añadir un mensaje de error tipo Toast
-    }
-  });
-  this.subs.add(sub);
+    const sub = this.svc.getById(id).subscribe({
+      next: (patient) => {
+        if (patient) {
+          // Creamos una copia para no alterar el objeto original
+          this.form.patchValue({
+            ...patient,
+            // Si hay fecha, la convertimos a "YYYY-MM-DD". Si no, enviamos null.
+            birthdate: patient.birthdate
+              ? new Date(patient.birthdate).toISOString().split('T')[0]
+              : null,
+            email: patient.email ? patient.email : null,
+          });
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        // Aquí podrías añadir un mensaje de error tipo Toast
+      },
+    });
+    this.subs.add(sub);
   }
 
   protected onSubmit(): void {
@@ -83,19 +91,20 @@ export class PatientFormComponent implements OnInit, OnDestroy {
 
     const dto = this.form.value as CreatePatientDto;
 
-    const request = this.isEditMode() && this.editingId
-      ? this.svc.update(this.editingId, dto)
-      : this.svc.create(dto);
+    const request =
+      this.isEditMode() && this.editingId
+        ? this.svc.update(this.editingId, dto)
+        : this.svc.create(dto);
 
     const sub = request.subscribe({
-      next:  () => {
+      next: () => {
         this.loading.set(false);
         this.router.navigate(['/patients']);
       },
       error: () => {
         this.loading.set(false);
         this.errorMsg.set('Ocurrió un error al guardar. Intenta de nuevo.');
-      }
+      },
     });
     this.subs.add(sub);
   }

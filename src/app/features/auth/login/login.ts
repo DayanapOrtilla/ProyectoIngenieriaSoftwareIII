@@ -1,27 +1,27 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink }        from '@angular/router';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 
-
 @Component({
-  selector:    'app-login',
-  standalone:  true,
-  imports:     [ReactiveFormsModule, RouterLink],
+  selector: 'app-login',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.css',
 })
 export class LoginComponent {
-  private auth   = inject(AuthService);
+  private auth = inject(AuthService);
   private router = inject(Router);
-  private fb     = inject(FormBuilder);
+  private fb = inject(FormBuilder);
 
   form = this.fb.group({
-    user:    ['', [Validators.required,]],
+    user: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  loading  = signal(false);
+  loading = signal(false);
   errorMsg = signal<string | null>(null);
 
   async onSubmit(): Promise<void> {
@@ -37,10 +37,9 @@ export class LoginComponent {
       const { user, password } = this.form.value;
       await this.auth.login({ user: user!, password: password! });
       this.router.navigate(['/dashboard']);
-    }catch {
+    } catch {
       this.errorMsg.set('Usuario o contraseña incorrectos. Por favor, verifica tus datos.');
-    }  
-    finally {
+    } finally {
       this.loading.set(false);
     }
   }

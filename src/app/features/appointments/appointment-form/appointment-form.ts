@@ -1,16 +1,33 @@
-﻿import { Component, inject, OnInit, OnDestroy, signal, ChangeDetectorRef } from '@angular/core';
+﻿import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { of, Subject, Subscription } from 'rxjs';
-import { AppointmentsService, CreateAppointmentDTO } from '../../../core/services/appointments.service';
+import {
+  AppointmentsService,
+  CreateAppointmentDTO,
+} from '../../../core/services/appointments.service';
 import { PatientsService, CreatePatientDto } from '../../../core/services/patients.service';
 import { AuthService } from '../../../core/services/auth.service';
 import type { Professional } from '../../../core/models/professional';
 import type { Specialty } from '../../../core/models/professional';
 import type { Patient } from '../../../core/models/patient';
 import { SpecialtyLabelPipe } from '../../../shared/pipes/specialty-label-pipe';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  catchError,
+  finalize,
+} from 'rxjs/operators';
 
 const SPECIALTY_DESCRIPTIONS: Record<Specialty, string> = {
   QUIROPRAXIA: 'Ajuste y alineación de columna vertebral',
@@ -22,6 +39,7 @@ const SPECIALTY_DESCRIPTIONS: Record<Specialty, string> = {
   selector: 'app-appointment-form',
   standalone: true,
   imports: [SpecialtyLabelPipe, FormsModule, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './appointment-form.html',
 })
 export class AppointmentFormComponent implements OnInit, OnDestroy {
@@ -76,7 +94,11 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
 
   protected get canGoStep2(): boolean {
     if (this.isSchedulerMode()) {
-      return this.selectedPatient !== null && this.booking.specialty !== null && this.booking.professional !== null;
+      return (
+        this.selectedPatient !== null &&
+        this.booking.specialty !== null &&
+        this.booking.professional !== null
+      );
     }
     return this.booking.specialty !== null && this.booking.professional !== null;
   }
@@ -90,24 +112,26 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
     this.loadSpecialties();
 
     this.subs.add(
-      this.searchSubject.pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        switchMap(term => {
-          if (term.trim().length < 3) {
-            this.searchLoading = false;
-            return of([]);
-          }
-          this.searchLoading = true;
-          return this.patientsSvc.search(term).pipe(
-            catchError(() => of([])),
-            finalize(() => this.searchLoading = false)
-          );
-        })
-      ).subscribe(data => {
-        this.searchResults = data || [];
-        this.searchLoading = false;
-      })
+      this.searchSubject
+        .pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          switchMap((term) => {
+            if (term.trim().length < 3) {
+              this.searchLoading = false;
+              return of([]);
+            }
+            this.searchLoading = true;
+            return this.patientsSvc.search(term).pipe(
+              catchError(() => of([])),
+              finalize(() => (this.searchLoading = false)),
+            );
+          }),
+        )
+        .subscribe((data) => {
+          this.searchResults = data || [];
+          this.searchLoading = false;
+        }),
     );
   }
 
@@ -139,7 +163,7 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
         this.searchResults = [];
         this.searchLoading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
     this.subs.add(sub);
   }
@@ -179,14 +203,18 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
         this.searchTerm = `${patient.firstName} ${patient.lastName}`;
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => {
+        this.loading = false;
+      },
     });
     this.subs.add(sub);
   }
 
   private loadSpecialties(): void {
     const sub = this.svc.getAvailableSpecialties().subscribe({
-      next: (data) => { this.specialties.set(data); },
+      next: (data) => {
+        this.specialties.set(data);
+      },
     });
     this.subs.add(sub);
   }
@@ -207,7 +235,9 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
         this.booking.professional = data.length > 0 ? data[0] : undefined;
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => {
+        this.loading = false;
+      },
     });
     this.subs.add(sub);
   }
@@ -240,7 +270,7 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
     this.subs.add(sub);
   }
@@ -289,19 +319,24 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.errorMsg = 'No se encontrÃ³ el perfil de paciente asociado a tu cuenta.';
           this.cdr.detectChanges();
-        }
+        },
       });
       this.subs.add(sub);
     }
   }
 
-  private submitAppointment(date: string, time: string, professionalId: string, patientId: string): void {
+  private submitAppointment(
+    date: string,
+    time: string,
+    professionalId: string,
+    patientId: string,
+  ): void {
     const appointmentPayload = {
       date: new Date(date + 'T12:00:00'),
       time,
       status: 'CONFIRMADA',
       professionalId,
-      patientId
+      patientId,
     };
     const sub = this.svc.confirmAppointment(appointmentPayload as any).subscribe({
       next: () => {
@@ -312,9 +347,11 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.loading = false;
         const errorData = err.error?.message;
-        this.errorMsg = Array.isArray(errorData) ? errorData[0] : (errorData || 'Error al confirmar la cita');
+        this.errorMsg = Array.isArray(errorData)
+          ? errorData[0]
+          : errorData || 'Error al confirmar la cita';
         this.cdr.detectChanges();
-      }
+      },
     });
     this.subs.add(sub);
   }
@@ -350,7 +387,10 @@ export class AppointmentFormComponent implements OnInit, OnDestroy {
 
   protected formatDate(date: string): string {
     return new Date(date + 'T00:00:00').toLocaleDateString('es-CO', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   }
 

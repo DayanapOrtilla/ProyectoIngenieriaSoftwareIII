@@ -1,9 +1,17 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, signal } from '@angular/core';
-import { RouterLink }              from '@angular/router';
-import { Subscription }            from 'rxjs';
-import { ProfessionalsService }    from '../../../core/services/professionals.service';
-import type { Professional }       from '../../../core/models/professional';
-import { SpecialtyLabelPipe }      from '../../../shared/pipes/specialty-label-pipe';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { ProfessionalsService } from '../../../core/services/professionals.service';
+import type { Professional } from '../../../core/models/professional';
+import { SpecialtyLabelPipe } from '../../../shared/pipes/specialty-label-pipe';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -11,13 +19,14 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [RouterLink, SpecialtyLabelPipe, FormsModule],
   templateUrl: './professional-list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './professional-list.css',
 })
 export class ProfessionalListComponent implements OnInit, OnDestroy {
   private svc = inject(ProfessionalsService);
   private subs = new Subscription();
 
-  protected professionals = signal<Professional[]> ([]);
+  protected professionals = signal<Professional[]>([]);
   protected loading = false;
 
   // Filtros
@@ -25,7 +34,7 @@ export class ProfessionalListComponent implements OnInit, OnDestroy {
   protected filterActive: string = '';
 
   protected get filtered(): Professional[] {
-    return this.professionals().filter(p => {
+    return this.professionals().filter((p) => {
       const byType = !this.filterType || p.type === this.filterType;
       const byActive = !this.filterActive || String(p.isActive) === this.filterActive;
       return byType && byActive;
@@ -33,11 +42,11 @@ export class ProfessionalListComponent implements OnInit, OnDestroy {
   }
 
   protected get totalActive(): number {
-    return this.professionals().filter(p => p.isActive).length;
+    return this.professionals().filter((p) => p.isActive).length;
   }
 
   protected get totalInactive(): number {
-    return this.professionals().filter(p => !p.isActive).length;
+    return this.professionals().filter((p) => !p.isActive).length;
   }
 
   ngOnInit(): void {
@@ -51,25 +60,31 @@ export class ProfessionalListComponent implements OnInit, OnDestroy {
   private load(): void {
     this.loading = true;
     const sub = this.svc.getAll().subscribe({
-      next:  (data) => { 
-        this.professionals.set(data); 
+      next: (data) => {
+        this.professionals.set(data);
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => {
+        this.loading = false;
+      },
     });
     this.subs.add(sub);
   }
 
   protected toggleActive(prof: Professional): void {
     const sub = this.svc.toggleActive(prof.id, !prof.isActive).subscribe({
-      next: () => { this.load(); }
+      next: () => {
+        this.load();
+      },
     });
     this.subs.add(sub);
   }
 
   protected delete(prof: Professional): void {
     const sub = this.svc.delete(prof.id).subscribe({
-      next: () => { this.load(); }
+      next: () => {
+        this.load();
+      },
     });
     this.subs.add(sub);
   }

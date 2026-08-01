@@ -1,23 +1,34 @@
-﻿import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+﻿import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { ProfessionalsService, CreateProfessionalDto } from '../../../core/services/professionals.service';
+import {
+  ProfessionalsService,
+  CreateProfessionalDto,
+} from '../../../core/services/professionals.service';
 import { AvailabilityComponent } from '../availability/availability';
 
 @Component({
-  selector:    'app-professional-form',
-  standalone:  true,
-  imports:     [ReactiveFormsModule, RouterLink, AvailabilityComponent],
+  selector: 'app-professional-form',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterLink, AvailabilityComponent],
   templateUrl: './professional-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './professional-form.css',
 })
 export class ProfessionalFormComponent implements OnInit, OnDestroy {
-  private svc    = inject(ProfessionalsService);
+  private svc = inject(ProfessionalsService);
   private router = inject(Router);
-  private route  = inject(ActivatedRoute);
-  private fb     = inject(FormBuilder);
-  private subs   = new Subscription();
+  private route = inject(ActivatedRoute);
+  private fb = inject(FormBuilder);
+  private subs = new Subscription();
 
   protected activeTab = signal<'profile' | 'schedule'>('profile');
   protected isEditMode = signal(false);
@@ -28,15 +39,15 @@ export class ProfessionalFormComponent implements OnInit, OnDestroy {
   protected showAvailability = signal(false);
 
   form = this.fb.group({
-    firstName:       ['', [Validators.required]],
-    lastName:        ['', [Validators.required]],
-    type:            ['', [Validators.required]],
-    specialty:       ['', [Validators.required]],
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
+    type: ['', [Validators.required]],
+    specialty: ['', [Validators.required]],
     intervalMinutes: [30, [Validators.required, Validators.min(1)]],
-    email:           ['', [Validators.required, Validators.email]],
-    password:        [''],
-    confirm:         [''],
-    isActive:        [true],
+    email: ['', [Validators.required, Validators.email]],
+    password: [''],
+    confirm: [''],
+    isActive: [true],
   });
 
   ngOnInit(): void {
@@ -100,7 +111,7 @@ export class ProfessionalFormComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading.set(false);
         this.errorMsg.set('No se pudo cargar el profesional.');
-      }
+      },
     });
 
     this.subs.add(sub);
@@ -123,9 +134,10 @@ export class ProfessionalFormComponent implements OnInit, OnDestroy {
       delete dto.password;
     }
 
-    const request = this.isEditMode() && this.editingId
-      ? this.svc.update(this.editingId, dto)
-      : this.svc.create(dto as CreateProfessionalDto);
+    const request =
+      this.isEditMode() && this.editingId
+        ? this.svc.update(this.editingId, dto)
+        : this.svc.create(dto as CreateProfessionalDto);
 
     this.subs.add(
       request.subscribe({
@@ -143,13 +155,13 @@ export class ProfessionalFormComponent implements OnInit, OnDestroy {
         error: () => {
           this.loading.set(false);
           this.errorMsg.set('Ocurrió un error al guardar.');
-        }
-      })
+        },
+      }),
     );
   }
 
   protected toggleAvailability(): void {
-    this.showAvailability.update(v => !v);
+    this.showAvailability.update((v) => !v);
   }
 
   protected isInvalid(field: string): boolean {
@@ -158,9 +170,6 @@ export class ProfessionalFormComponent implements OnInit, OnDestroy {
   }
 
   get passwordMismatch(): boolean {
-    return !!(
-      this.form.hasError('mismatch') &&
-      this.form.get('confirm')?.touched
-    );
+    return !!(this.form.hasError('mismatch') && this.form.get('confirm')?.touched);
   }
 }

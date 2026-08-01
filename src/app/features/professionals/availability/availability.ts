@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit, OnDestroy, Input } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  OnInit,
+  OnDestroy,
+  Input,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription, forkJoin } from 'rxjs';
@@ -8,10 +16,10 @@ import { Professional } from '../../../core/models/professional';
 
 interface DayConfig {
   dayOfWeek: number;
-  label:     string;
-  isActive:  boolean;
+  label: string;
+  isActive: boolean;
   startTime: string;
-  endTime:   string;
+  endTime: string;
 }
 
 @Component({
@@ -19,6 +27,7 @@ interface DayConfig {
   standalone: true,
   imports: [FormsModule],
   templateUrl: './availability.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './availability.css',
 })
 export class AvailabilityComponent implements OnInit, OnDestroy {
@@ -53,7 +62,7 @@ export class AvailabilityComponent implements OnInit, OnDestroy {
   protected days: DayConfig[] = [];
 
   ngOnInit(): void {
-    if (this.professionalId && this.professionalId.length>30) {
+    if (this.professionalId && this.professionalId.length > 30) {
       this.initDefaultDays();
       this.loadAllData();
     }
@@ -64,29 +73,29 @@ export class AvailabilityComponent implements OnInit, OnDestroy {
   }
 
   private initDefaultDays(): void {
-    this.days = AVAIL_DAYS.map(day => ({
+    this.days = AVAIL_DAYS.map((day) => ({
       dayOfWeek: day,
-      label:     DAY_LABELS[day],
-      isActive:  false,
+      label: DAY_LABELS[day],
+      isActive: false,
       startTime: '08:00',
-      endTime:   '17:00',
+      endTime: '17:00',
     }));
   }
 
   private loadAllData(): void {
     this.loading.set(true);
-    
+
     // Ejecutamos ambas peticiones en paralelo para ser más eficientes
     const dataSub = forkJoin({
       prof: this.svc.getById(this.professionalId),
-      avail: this.svc.getAvailability(this.professionalId)
+      avail: this.svc.getAvailability(this.professionalId),
     }).subscribe({
       next: ({ prof, avail }) => {
         this.professional = prof;
-        
+
         if (avail && avail.length > 0) {
-          avail.forEach(a => {
-            const day = this.days.find(d => d.dayOfWeek === a.dayOfWeek);
+          avail.forEach((a) => {
+            const day = this.days.find((d) => d.dayOfWeek === a.dayOfWeek);
             if (day) {
               day.isActive = a.isActive;
               day.startTime = a.startTime;
@@ -99,7 +108,7 @@ export class AvailabilityComponent implements OnInit, OnDestroy {
       error: () => {
         this.errorMsg.set('Error al cargar la configuración.');
         this.loading.set(false);
-      }
+      },
     });
     this.subs.add(dataSub);
   }
@@ -110,7 +119,7 @@ export class AvailabilityComponent implements OnInit, OnDestroy {
     this.saving.set(true);
     this.errorMsg.set(null);
 
-    const availability: Availability[] = this.days.map(d => ({
+    const availability: Availability[] = this.days.map((d) => ({
       id: crypto.randomUUID(),
       professionalId: this.professionalId,
       dayOfWeek: d.dayOfWeek,
@@ -128,7 +137,7 @@ export class AvailabilityComponent implements OnInit, OnDestroy {
       error: () => {
         this.saving.set(false);
         this.errorMsg.set('Error al guardar la disponibilidad.');
-      }
+      },
     });
     this.subs.add(sub);
   }
@@ -144,12 +153,12 @@ export class AvailabilityComponent implements OnInit, OnDestroy {
   }
 
   private isValid(): boolean {
-    const invalid = this.days.find(d => d.isActive && d.endTime <= d.startTime);
+    const invalid = this.days.find((d) => d.isActive && d.endTime <= d.startTime);
     if (invalid) {
       this.errorMsg.set(`En ${invalid.label}: la hora de fin debe ser mayor a la de inicio.`);
       return false;
     }
-    if (!this.days.some(d => d.isActive)) {
+    if (!this.days.some((d) => d.isActive)) {
       this.errorMsg.set('Debes activar al menos un día.');
       return false;
     }

@@ -1,15 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink }        from '@angular/router';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { AuthService, RegisterPatientDto } from '../../../core/services/auth.service';
 import { CreatePatientDto, PatientsService } from '../../../core/services/patients.service';
 import { Gender } from '../../../core/models/patient';
 
 @Component({
-  selector:    'app-register',
-  standalone:  true,
-  imports:     [ReactiveFormsModule, RouterLink,],
+  selector: 'app-register',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './register.css',
 })
 export class RegisterComponent {
@@ -18,23 +19,26 @@ export class RegisterComponent {
   private auth = inject(AuthService);
   private svcPatient = inject(PatientsService);
 
-  form = this.fb.group({
-    document: ['', [Validators.required]],
-    firstName:  ['', [Validators.required]],
-    lastName:   ['', [Validators.required]],
-    phone:      ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-    gender:     ['', [Validators.required]],
-    email:      ['',],
-    password:   ['', [Validators.required, Validators.minLength(8)]],
-    confirm:    ['', [Validators.required]],
-  }, { validators: this.passwordMatch });
+  form = this.fb.group(
+    {
+      document: ['', [Validators.required]],
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      gender: ['', [Validators.required]],
+      email: [''],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirm: ['', [Validators.required]],
+    },
+    { validators: this.passwordMatch },
+  );
 
-  loading  = signal(false);
+  loading = signal(false);
   errorMsg = signal<string | null>(null);
 
   // Validador personalizado: Valor de contraseña y confirmación deben coincidir
   private passwordMatch(group: AbstractControl) {
-    const pass    = group.get('password')?.value;
+    const pass = group.get('password')?.value;
     const confirm = group.get('confirm')?.value;
     return pass === confirm ? null : { mismatch: true };
   }
@@ -51,9 +55,9 @@ export class RegisterComponent {
 
     try {
       if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+        this.form.markAllAsTouched();
+        return;
+      }
       const value = this.form.getRawValue();
 
       const dto: RegisterPatientDto = {
@@ -64,19 +68,18 @@ export class RegisterComponent {
         email: value.email ?? '',
         password: value.password ?? '',
         gender: value.gender as Gender,
-        isActive: true
-      }
+        isActive: true,
+      };
 
       await this.auth.register(dto);
 
       await this.auth.login({
-        user:    this.form.value.document!,
+        user: this.form.value.document!,
         password: this.form.value.password!,
       });
 
       // Tras registro exitoso → asistente de agendamiento (HU-2.2)
       this.router.navigate(['/appointments/book']);
-
     } catch {
       this.errorMsg.set('Ocurrió un error al crear la cuenta. Intenta de nuevo.');
     } finally {
@@ -90,9 +93,6 @@ export class RegisterComponent {
   }
 
   get passwordMismatch(): boolean {
-    return !!(
-      this.form.hasError('mismatch') &&
-      this.form.get('confirm')?.touched
-    );
+    return !!(this.form.hasError('mismatch') && this.form.get('confirm')?.touched);
   }
 }
