@@ -6,6 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Gender } from '../models/patient';
+import { url } from 'inspector';
+import Keycloak from 'keycloak-js';
 
 const TOKEN_KEY = 'pa_token';
 const USER_KEY = 'pa_user';
@@ -29,9 +31,13 @@ export interface LoginCredentials {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+
+  private readonly keycloak = inject(Keycloak);
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+
+  private initialized = false;
 
   private _user = signal<User | null>(this._loadUserFromStorage());
 
@@ -43,6 +49,23 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       this._user.set(this._loadUserFromStorage());
     }
+  }
+
+  async init() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (this.initialized) {
+      return;
+    }
+
+    this.initialized = true;
+
+    await this.keycloak.init({
+      onLoad: 'check-sso',
+      silentCheckSsoRedirectUri: `${window.location.origin}/assets/silent-check-sso.html`,
+    })
   }
 
   async login(credentials: LoginCredentials): Promise<void> {
@@ -85,16 +108,22 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem(TOKEN_KEY);
-    }
-    return null;
+  getToken() {
+    return this.keycloak.token;
   }
 
   hasRole(...roles: UserRole[]): boolean {
     const role = this.userRole();
     return role !== null && roles.includes(role);
+  }
+
+  hasRoleKc(...roles: UserRole[]): boolean {
+    const role = this.userRole();
+    return role !== null && roles.includes(role);
+  }
+
+  isAuthenticated() {
+    return this.keycloak.authenticated;
   }
 
   private _loadUserFromStorage(): User | null {

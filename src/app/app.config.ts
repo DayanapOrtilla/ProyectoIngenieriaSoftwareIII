@@ -1,4 +1,5 @@
-import { ApplicationConfig } from '@angular/core';
+import { environment } from './../environments/environment.prod';
+import { ApplicationConfig,inject,PLATFORM_ID, } from '@angular/core';
 import { provideRouter, withComponentInputBinding }    from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors }         from '@angular/common/http';
 import { provideAnimationsAsync }                      from '@angular/platform-browser/animations/async';
@@ -22,19 +23,32 @@ import { HttpPatientRepository } from './core/repositories/patients/http-patient
 import { HttpAppointmentRepository } from './core/repositories/appointments/http-appointment.repository';
 import { HttpAvailabilityRepository } from './core/repositories/availability/http-availability.repository';
 
+// Autenticador
+import { provideKeycloak, includeBearerTokenInterceptor } from 'keycloak-angular';
+import { isPlatformBrowser } from '@angular/common';
+
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    //provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(
       withFetch(),
-      withInterceptors([jwtInterceptor, errorInterceptor])
+      withInterceptors([jwtInterceptor, errorInterceptor, includeBearerTokenInterceptor])
     ),
+    provideKeycloak({
+      config: {
+        url: environment.keycloak.url || 'http://localhost:8080',
+        realm: environment.keycloak.realm || 'piedra-azul',
+        clientId: environment.keycloak.clientId || 'piedra-azul-frontend'
+      },
+    }),
     provideAnimationsAsync(),
 
     // ── Repositorios ─────────────────────────────────────────
     // Para conectar el backend real: reemplaza Mock por Http
-    
+
     { provide: ProfessionalRepository, useClass: HttpProfessionalRepository },
     { provide: PatientRepository,      useClass: HttpPatientRepository      },
     { provide: AppointmentRepository,  useClass: HttpAppointmentRepository  },
